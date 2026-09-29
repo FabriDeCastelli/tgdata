@@ -27,7 +27,7 @@ class NodeForecasting(Task):
         split: str = "train",
         splits: str = "default",
         stride: int = 1,
-        strict: bool = False,
+        strict: bool | None = None,
         target: str | None = None,
         normalize: Literal["channel", "node"] | None = None,
         transform: Callable[[Sample], Sample] | None = None,
@@ -57,7 +57,7 @@ class NodeForecasting(Task):
     def __getitem__(self, i: int) -> Sample:
         g, t = self.g, int(self.anchors[i])
         lo, hi = t - self.window, t + self.horizon
-        x = np.asarray(g.x[lo:hi], dtype=np.float32)
+        x = np.array(g.x[lo:hi], dtype=np.float32)  # a copy: slices of a memmap are read-only
         if self.scale is not None:
             x = (x - self.scale[0]) / self.scale[1]
         if self.target is not None:
@@ -66,8 +66,8 @@ class NodeForecasting(Task):
             y = x[self.window:, :, self.target_channels]
         else:
             y = x[self.window:]
-        sample: Sample = {"x": torch.from_numpy(x[: self.window].copy()),
-                          "y": torch.from_numpy(np.ascontiguousarray(y)), "t": t}
+        sample: Sample = {"x": torch.from_numpy(x[: self.window]),
+                          "y": torch.from_numpy(np.array(y)), "t": t}
         if g.mask is not None:
             mask = torch.from_numpy(_mask_as_x(np.asarray(g.mask[lo:hi]), x).copy())
             sample["mask_x"] = mask[: self.window]

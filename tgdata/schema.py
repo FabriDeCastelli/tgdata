@@ -47,11 +47,13 @@ class Split:
 
     `fractions` are chronological and cut `over` steps or over samples (windows);
     `boundaries` are [start, end) in timestamp units, for sources that split by date;
-    `nodes` holds node ids per split, for node-split tasks.
+    `nodes` holds node ids per split, for node-split tasks. With `strict`, a sample's inputs
+    must lie inside its split too, as when a source cuts windows within each part.
     """
 
     fractions: dict[str, float] | None = None
     over: Literal["steps", "samples"] = "steps"
+    strict: bool = False
     boundaries: Bounds | None = None
     nodes: dict[str, np.ndarray] | None = None
     reference: str | None = None
@@ -164,7 +166,9 @@ class TemporalGraph:
 def adjacency(g: TemporalGraph, kind: str | None = None) -> tuple[np.ndarray, np.ndarray]:
     """Edges weighted as `meta.adjacency` prescribes (the source paper's setting) unless `kind`
     overrides it: "raw" keeps stored weights, "binary" sets them to 1, "gaussian" maps distances
-    to exp(-(d / sigma)^2) (sigma defaults to the std of d) and drops edges below `threshold`."""
+    to exp(-(d / sigma)^2) (sigma defaults to the std of d) and drops edges below `threshold`.
+    A binary spec with `symmetric` adds each edge's reverse, as sources building A[j, i] = A[i, j]
+    do."""
     assert g.edge_index is not None and g.edge_weight is not None
     spec = dict(g.meta.get("adjacency", {"kind": "raw"}))
     if kind is not None and kind != spec["kind"]:
@@ -172,7 +176,12 @@ def adjacency(g: TemporalGraph, kind: str | None = None) -> tuple[np.ndarray, np
     if spec["kind"] == "raw":
         return g.edge_index, g.edge_weight
     if spec["kind"] == "binary":
-        return g.edge_index, np.ones(g.edge_weight.shape, dtype=np.float32)
+        ei = np.asarray(g.edge_index)
+        if spec.get("symmetric"):
+            if not g.is_static:
+                raise ValueError("symmetric adjacency needs a static graph")
+            ei = np.unique(np.concatenate([ei, ei[::-1]], axis=1), axis=1)
+        return ei, np.ones(ei.shape[1], dtype=np.float32)
     if spec["kind"] != "gaussian":
         raise ValueError(f"unknown adjacency kind {spec['kind']!r}")
     if g.meta["edge_weight"]["kind"] != "distance" or not g.is_static:

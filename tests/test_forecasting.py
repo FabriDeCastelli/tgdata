@@ -123,3 +123,10 @@ def test_anchors_match_v1_windows(static_graph):
             v1 = np.arange(first, end - 3 + 1)
             task = static_graph.window(4, 3, split, strict=strict)
             np.testing.assert_array_equal(task.anchors, v1)
+
+
+def test_samples_from_disk_are_writable(static_graph, tmp_path):
+    tgdata.save(static_graph, tmp_path)
+    s = tgdata.load_dir(tmp_path).window(4, 3)[0]
+    for key in ("x", "y", "mask_x", "mask_y", "covariates", "edge_index", "edge_weight"):
+        s[key].copy_(s[key].clone())

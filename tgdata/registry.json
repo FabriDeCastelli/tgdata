@@ -1,6 +1,63 @@
 {
+  "pems03": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 358,
+    "num_steps": 26208,
+    "num_features": 1,
+    "freq": "5min",
+    "channels": [
+      "flow"
+    ],
+    "covariate_channels": [],
+    "source": "Caltrans PeMS District 3, STSGCN release (Song et al., 2020)",
+    "license": "other"
+  },
+  "pems04": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 307,
+    "num_steps": 16992,
+    "num_features": 1,
+    "freq": "5min",
+    "channels": [
+      "flow"
+    ],
+    "covariate_channels": [
+      "occupancy",
+      "speed"
+    ],
+    "source": "Caltrans PeMS District 4, ASTGCN release (Guo et al., 2019)",
+    "license": "other"
+  },
+  "pems07": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 883,
+    "num_steps": 28224,
+    "num_features": 1,
+    "freq": "5min",
+    "channels": [
+      "flow"
+    ],
+    "covariate_channels": [],
+    "source": "Caltrans PeMS District 7, STSGCN release (Song et al., 2020)",
+    "license": "other"
+  },
   "pems08": {
     "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
     "time_mode": "discrete",
     "num_nodes": 170,
     "num_steps": 17856,
@@ -9,14 +66,11 @@
     "channels": [
       "flow"
     ],
-    "source": "Caltrans PeMS District 8, ASTGCN release (Guo et al., 2019)",
-    "license": "other",
     "covariate_channels": [
       "occupancy",
       "speed"
     ],
-    "tasks": [
-      "node_forecasting"
-    ]
+    "source": "Caltrans PeMS District 8, ASTGCN release (Guo et al., 2019)",
+    "license": "other"
   }
 }

@@ -15,13 +15,21 @@ g.with_split("70/10/20")                           # make a named split the defa
 g.to_pyg(); g.to_tsl()
 ```
 
-Install with `pip install -e .`, plus `[pyg]`, `[tsl]` or `[tgb]` for the adapters.
+Install with `pip install "tgdata @ git+ssh://git@github.com/FabriDeCastelli/tgdata.git@v0.1.0"`,
+adding `[plot]` for plotting and `[pyg]`, `[tsl]` or `[tgb]` for the adapters.
 
 ## Supported datasets
 
-| name | domain | default task | nodes | steps | freq | target | covariates | graph | source |
-|---|---|---|---|---|---|---|---|---|---|
-| `pems08` | traffic_flow | node forecasting, 12 → 12 | 170 | 17,856 | 5min | flow | occupancy, speed | static, directed, binary (ASTGCN) | Caltrans PeMS D8, ASTGCN release |
+| name | domain | default task | nodes | steps | dates | freq | target | covariates | graph | split | source |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `pems03` | traffic_flow | node forecasting, 12 → 12 | 358 | 26,208 | 2018-09-01 – 2018-11-30 | 5min | flow | – | binary, symmetric | 60/20/20 of steps, windows within parts | PeMS D3, STSGCN |
+| `pems04` | traffic_flow | node forecasting, 12 → 12 | 307 | 16,992 | 2018-01-01 – 2018-02-28 | 5min | flow | occupancy, speed | binary, directed | 60/20/20 of samples | PeMS D4, ASTGCN |
+| `pems07` | traffic_flow | node forecasting, 12 → 12 | 883 | 28,224 | 2017-05-01 – 2017-08-06 | 5min | flow | – | binary, symmetric | 60/20/20 of steps, windows within parts | PeMS D7, STSGCN |
+| `pems08` | traffic_flow | node forecasting, 12 → 12 | 170 | 17,856 | 2016-07-01 – 2016-08-31 | 5min | flow | occupancy, speed | binary, directed | 60/20/20 of samples | PeMS D8, ASTGCN |
+
+Each follows the paper that introduced it: ASTGCN (Guo et al., 2019) for PEMS04/08 and STSGCN
+(Song et al., 2020) for PEMS03/07. Missing readings are zero flow, masked by `flow != 0`. STSGCN
+states 5/1/2017 – 8/31/2017 for PEMS07, but its release holds 98 days; see `meta.date_note`.
 
 `tgdata.list()` gives the live list from the Hub, and `tgdata/registry.json` is the offline copy.
 
@@ -110,9 +118,23 @@ Each batch comes from one dataset, picked with probability ∝ size^(1/temperatu
 - `collate_concat` concatenates nodes with a `batch` vector, as PyG does, and merges edges step
   by step, so one `edge_ptr [window + 1]` indexes window step k across the whole batch.
 
+## Plotting
+
+```python
+from tgdata.plot import plot_forecast, plot_heatmap, plot_signals
+
+plot_signals(g, nodes=[0, 50], start="2016-08-01", end="2016-08-08")  # missing readings are gaps
+plot_heatmap(g, start=0, end=288 * 7)                                  # all nodes over a week
+sample = g.task(split="test")[0]
+plot_forecast(sample, nodes=[0, 50], prediction=model(sample))         # input, target, prediction
+```
+
+Each returns its matplotlib axes; pass `ax=` to draw into your own figure.
+
 ## Adding a dataset
 
-Write `tgdata/converters/<name>.py`: build a `TemporalGraph` from the source's raw files,
+Write `tgdata/converters/<name>.py` (see `converters/pems.py`): build a `TemporalGraph` from the
+source's raw files,
 `validate` it, `tgdata.save` it, then push with `tgdata.push(out_dir, name)`, and add its entry
 to `tgdata/registry.json`. No registration on the Hub is needed: `push` creates the repo
 (private) under `TGDATA_NAMESPACE` (default `tgdata-hub`), and its card tags make it listable.

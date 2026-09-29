@@ -28,7 +28,7 @@ class GraphClassification(Task):
         window: int = 1,
         split: str = "train",
         splits: str = "default",
-        strict: bool = False,
+        strict: bool | None = None,
         transform: Callable[[Sample], Sample] | None = None,
         adjacency_kind: str | None = None,
     ) -> None:

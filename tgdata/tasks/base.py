@@ -43,14 +43,16 @@ def select_anchors(
     split_name: str,
     first: np.ndarray,
     last: np.ndarray,
-    strict: bool,
+    strict: bool | None,
 ) -> np.ndarray:
     """Anchors of `split` under `g.splits[split_name]`.
 
     `first`/`last` are, per anchor, the first input step and the last target step. A sample
-    belongs to a split when its targets lie inside it; with `strict` its inputs must too.
+    belongs to a split when its targets lie inside it; with `strict` (default: the split's own
+    setting) its inputs must too.
     """
     spec = g.splits[split_name]
+    strict = spec.strict if strict is None else strict
     if spec.nodes is not None:
         raise ValueError(f"split {split_name!r} splits nodes, not time")
     if spec.fractions is not None and spec.over == "samples":

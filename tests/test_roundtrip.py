@@ -93,7 +93,8 @@ def test_validate_rejects_unsorted_events(continuous_graph):
 
 
 def test_offline_registry():
-    assert tgdata.list(domain="traffic_flow", offline=True) == ["pems08"]
+    traffic = tgdata.list(domain="traffic_flow", offline=True)
+    assert traffic == ["pems03", "pems04", "pems07", "pems08"]
     assert tgdata.info("pems08", offline=True)["time_mode"] == "discrete"
 
 
