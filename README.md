@@ -134,7 +134,7 @@ deterministically; `__getitem__` only reads them.
 
 | task | sample | collate |
 |---|---|---|
-| `node_forecasting` | `x` of steps `[t-window, t)`, target of `[t, t+horizon)`, masks, covariates, edges | `collate_pad` |
+| `node_forecasting` | `x` of steps `[t-window, t)`, target of `[t, t+horizon)`, masks, covariates, edges | built whole on the device by `__getitems__` |
 | `graph_classification` | snapshots `[t-window+1, t]`, restricted to nodes active in the window and relabelled (`node_ids` maps back), graph target at `t` | `collate_concat` |
 
 A sample belongs to a split when its targets lie inside it; its inputs may reach back into the
@@ -177,8 +177,9 @@ Training-step columns are the slowdown against the batch already on the GPU.
 
 `collate_concat` (graph classification) batches snapshot samples as PyG does: nodes
 concatenated with a `batch` vector, edges merged step by step so one `edge_ptr [window + 1]`
-indexes window step k across the batch. `collate_pad` pads per-sample batches of different
-graphs to a common node count, optionally sampling `max_nodes` subgraphs.
+indexes window step k across the batch.
+
+Batches never mix datasets, so nodes are never padded.
 
 ## Plotting
 

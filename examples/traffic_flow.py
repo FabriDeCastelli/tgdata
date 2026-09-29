@@ -18,6 +18,7 @@
 # %%
 import os
 import time
+from collections import Counter
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -168,10 +169,10 @@ print(f"persistence masked MAE on PEMS08 test: {errors / counts:.2f}")
 # %% [markdown]
 # ## Several datasets at once
 #
-# Pretraining draws each batch from one dataset, chosen with probability proportional to
-# size^(1/temperature), so batches need no padding. Only the small
+# Pretraining draws every batch from a single dataset, chosen with probability proportional
+# to size^(1/temperature); batches never mix datasets, so they need no padding. Only the small
 # PeMS datasets are used here; set `INCLUDE_LARGEST = True` to add the nine LargeST districts
-# (a one-time 4.3 GB download).
+# (a one-time 1.7 GB download).
 
 # %%
 INCLUDE_LARGEST = False
@@ -185,8 +186,10 @@ loader = pool.loader(batch_size=16, num_batches=200, temperature=2.0, seed=0)
 
 for name, t, p in zip(names, pool.datasets, loader.batch_sampler.probs, strict=True):
     print(f"{name:14s} {len(t):6d} samples, {t.g.num_nodes:4d} nodes, picked with p = {p:.2f}")
+nodes_to_name = {t.g.num_nodes: name for name, t in zip(names, pool.datasets, strict=True)}
 start = time.perf_counter()
-samples = sum(batch["x"].shape[0] for batch in loader)
+drawn = Counter(nodes_to_name[batch["x"].shape[2]] for batch in loader)
 if torch.cuda.is_available():
     torch.cuda.synchronize()
-print(f"{samples} samples in {time.perf_counter() - start:.2f} s, on {pool.datasets[0].device}")
+print(f"{len(loader)} batches of 16 in {time.perf_counter() - start:.2f} s, "
+      f"on {pool.datasets[0].device}; batches per dataset: {dict(sorted(drawn.items()))}")
