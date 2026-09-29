@@ -13,7 +13,7 @@ def to_pyg(g: TemporalGraph, adjacency_kind: str | None = None) -> Any:
     from torch_geometric.data import Data
 
     if g.time_mode != "discrete":
-        raise NotImplementedError("continuous graphs: use to_tgb")
+        raise NotImplementedError("to_pyg supports discrete-time graphs only")
     x = torch.from_numpy(np.array(g.x, dtype=np.float32))
     mask = None if g.mask is None else torch.from_numpy(np.array(g.mask))
     ei, w = adjacency(g, adjacency_kind) if g.edge_index is not None else (None, None)

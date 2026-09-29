@@ -14,7 +14,6 @@ dependencies = [
 [project.optional-dependencies]
 pyg = ["torch_geometric>=2.4"]
 tsl = ["torch-spatiotemporal>=0.9"]
-tgb = ["py-tgb>=0.9"]
 plot = ["matplotlib>=3.7"]
 convert = ["h5py>=3.8"]
 

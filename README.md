@@ -19,7 +19,7 @@ g.to_pyg(); g.to_tsl()
 ```
 
 Install with `pip install "tgdata @ git+ssh://git@github.com/FabriDeCastelli/tgdata.git@v0.1.0"`,
-adding `[plot]` for plotting and `[pyg]`, `[tsl]` or `[tgb]` for the adapters.
+adding `[plot]` for plotting and `[pyg]` or `[tsl]` for the adapters.
 
 ## Supported datasets
 
@@ -67,7 +67,7 @@ Each repo holds:
 | `arrays/*.npy` | `x [T,N,F]`, `mask [T,N]` or `[T,N,F]`, `covariates [T,C]` or `[T,N,C]`, `timestamps [T]` (int64), `edge_index [2,E]`, `edge_weight [E]`, `edge_ptr [T+1]` (absent = static), `node_features [N,D]`, `node_time [N]` |
 | `y/<name>/*.npy` | supervised targets: `values`, and `steps` / `index` when sparse |
 | `splits/<name>/*.npy` | node ids per part, for node splits |
-| `events.parquet` | `src, dst, t, msg` for continuous-time (TGB) graphs |
+| `events.parquet` | `src, dst, t, msg` for continuous-time graphs |
 | `meta.json` | `schema_version`, identity, target and split specs, `meta` |
 | `README.md` | card tagged `domain:*`, `time:*`, `task:*` |
 

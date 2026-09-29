@@ -170,11 +170,6 @@ class TemporalGraph:
 
         return to_tsl(self, **kwargs)
 
-    def to_tgb(self, **kwargs: Any) -> Any:
-        from .adapters.tgb import to_tgb
-
-        return to_tgb(self, **kwargs)
-
 
 def adjacency(g: TemporalGraph, kind: str | None = None) -> tuple[np.ndarray, np.ndarray]:
     """Edges weighted as `meta.adjacency` prescribes (the source paper's setting) unless `kind`
