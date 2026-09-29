@@ -1,0 +1,22 @@
+{
+  "pems08": {
+    "domain": "traffic_flow",
+    "time_mode": "discrete",
+    "num_nodes": 170,
+    "num_steps": 17856,
+    "num_features": 1,
+    "freq": "5min",
+    "channels": [
+      "flow"
+    ],
+    "source": "Caltrans PeMS District 8, ASTGCN release (Guo et al., 2019)",
+    "license": "other",
+    "covariate_channels": [
+      "occupancy",
+      "speed"
+    ],
+    "tasks": [
+      "node_forecasting"
+    ]
+  }
+}
