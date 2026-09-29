@@ -1,4 +1,154 @@
 {
+  "largest": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 8600,
+    "num_steps": 105120,
+    "num_features": 1,
+    "freq": "5min",
+    "channels": [
+      "flow"
+    ],
+    "covariate_channels": [],
+    "source": "Caltrans PeMS, LargeST release (Liu et al., 2023)",
+    "license": "cc-by-nc-4.0",
+    "pool": false
+  },
+  "largest-d10": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "alias_of": "largest",
+    "nodes": "d10",
+    "num_nodes": 523,
+    "pool": true
+  },
+  "largest-d11": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "alias_of": "largest",
+    "nodes": "d11",
+    "num_nodes": 716,
+    "pool": true
+  },
+  "largest-d12": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "alias_of": "largest",
+    "nodes": "d12",
+    "num_nodes": 953,
+    "pool": true
+  },
+  "largest-d3": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "alias_of": "largest",
+    "nodes": "d3",
+    "num_nodes": 480,
+    "pool": true
+  },
+  "largest-d4": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "alias_of": "largest",
+    "nodes": "d4",
+    "num_nodes": 2352,
+    "pool": true
+  },
+  "largest-d5": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "alias_of": "largest",
+    "nodes": "d5",
+    "num_nodes": 211,
+    "pool": true
+  },
+  "largest-d6": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "alias_of": "largest",
+    "nodes": "d6",
+    "num_nodes": 484,
+    "pool": true
+  },
+  "largest-d7": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "alias_of": "largest",
+    "nodes": "d7",
+    "num_nodes": 1859,
+    "pool": true
+  },
+  "largest-d8": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "alias_of": "largest",
+    "nodes": "d8",
+    "num_nodes": 1022,
+    "pool": true
+  },
+  "largest-gba": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "alias_of": "largest",
+    "nodes": "gba",
+    "num_nodes": 2352,
+    "pool": false
+  },
+  "largest-gla": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "alias_of": "largest",
+    "nodes": "gla",
+    "num_nodes": 3834,
+    "pool": false
+  },
+  "largest-sd": {
+    "domain": "traffic_flow",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "alias_of": "largest",
+    "nodes": "sd",
+    "num_nodes": 716,
+    "pool": false
+  },
   "pems03": {
     "domain": "traffic_flow",
     "tasks": [

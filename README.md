@@ -6,12 +6,15 @@ Temporal-graph datasets in one canonical format, stored as one Hugging Face data
 import tgdata
 
 tgdata.list(domain="traffic_flow")                 # from Hub tags, falls back to registry.json
+tgdata.domains()                                   # {domain: [names]}
+tgdata.load_domain("traffic_flow")                 # the domain's pretraining pool
 tgdata.info("pems08")                              # meta.json of the repo
 g = tgdata.load("pems08", root="/data/tgdata")     # local copy if present, else the Hub; mmap
 g.task()                                           # the task the dataset's source defines
 g.task("node_forecasting", window="1h", horizon=12, split="test")  # 12 steps of 5 min
 tgdata.tasks.available(g)                          # task types this dataset supports
 g.with_split("70/10/20")                           # make a named split the default
+tgdata.load("largest-d5")                          # a named node subset: a view, nothing copied
 g.to_pyg(); g.to_tsl()
 ```
 
@@ -27,9 +30,31 @@ adding `[plot]` for plotting and `[pyg]`, `[tsl]` or `[tgb]` for the adapters.
 | `pems07` | traffic_flow | node forecasting, 12 → 12 | 883 | 28,224 | 2017-05-01 – 2017-08-06 | 5min | flow | – | binary, symmetric | 60/20/20 of steps, windows within parts | PeMS D7, STSGCN |
 | `pems08` | traffic_flow | node forecasting, 12 → 12 | 170 | 17,856 | 2016-07-01 – 2016-08-31 | 5min | flow | occupancy, speed | binary, directed | 60/20/20 of samples | PeMS D8, ASTGCN |
 
-Each follows the paper that introduced it: ASTGCN (Guo et al., 2019) for PEMS04/08 and STSGCN
-(Song et al., 2020) for PEMS03/07. Missing readings are zero flow, masked by `flow != 0`. STSGCN
-states 5/1/2017 – 8/31/2017 for PEMS07, but its release holds 98 days; see `meta.date_note`.
+| `largest` | traffic_flow | node forecasting, 12 → 12 | 8,600 | 105,120 | 2019-01-01 – 2019-12-31 | 5min | flow | – | Gaussian kernel of road distance, directed | 60/20/20 of samples, rounded | PeMS, LargeST |
+
+Each follows the paper that introduced it: ASTGCN (Guo et al., 2019) for PEMS04/08, STSGCN
+(Song et al., 2020) for PEMS03/07 and LargeST (Liu et al., 2023) for `largest`. Missing
+readings are masked by `flow != 0` in all of them, as their sources do. STSGCN states
+5/1/2017 – 8/31/2017 for PEMS07, but its release holds 98 days; see `meta.date_note`.
+`largest` keeps LargeST's 5-minute release; LargeST's own benchmark averages to 15 minutes.
+
+`largest` is stored once, with each sensor's metadata in `g.node_table` (ID, lat/lng, district,
+county, freeway, lanes, direction). Its districts and LargeST's subsets are named node sets,
+loadable as datasets:
+
+| name | nodes | selection |
+|---|---|---|
+| `largest-d3` … `largest-d12` | 211 – 2,352 | one PeMS district each (D3, D4, D5, D6, D7, D8, D10, D11, D12) |
+| `largest-sd`, `largest-gba`, `largest-gla` | 716, 2,352, 3,834 | LargeST's San Diego (D11), Bay Area (D4) and Los Angeles (D7, D8, D12) |
+
+## Domains
+
+Every dataset belongs to one domain, and each domain is a collection on the Hub (e.g. "Traffic
+flow" in `tgdata-hub`). `tgdata.load_domain(domain)` returns the domain's pretraining pool: the
+datasets whose readings no other member contains. Wholes and unions of other members
+(`largest`, `largest-sd`, `-gba`, `-gla`) stay out of it, so no reading is seen twice; they
+load by name. The traffic-flow pool is PEMS03/04/07/08 and the nine LargeST districts,
+10,318 sensors.
 
 `tgdata.list()` gives the live list from the Hub, and `tgdata/registry.json` is the offline copy.
 

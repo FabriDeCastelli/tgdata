@@ -94,7 +94,8 @@ SPECS = {
     "pems07": Spec(7, datetime(2017, 5, 1, tzinfo=timezone.utc), 28224, (), STSGCN,
                    date_note="STSGCN Table 1 states 5/1/2017 - 8/31/2017 (123 days) but the "
                    "release holds 98 days; the start is confirmed by the Sunday minimum of mean "
-                   "daily flow, so the series ends 2017-08-06 23:55 if contiguous"),
+                   "daily flow, so the series ends 2017-08-06 23:55 if contiguous, the range "
+                   "LargeST (Liu et al., 2023) Table 1 also lists"),
     "pems08": Spec(8, datetime(2016, 7, 1, tzinfo=timezone.utc), 17856,
                    ("occupancy", "speed"), ASTGCN),
 }

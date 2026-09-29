@@ -30,6 +30,10 @@ def save(g: TemporalGraph, path: str | Path) -> Path:
     for name, split in g.splits.items():
         if split.nodes is not None:
             _save_arrays(path / "splits" / name, split.nodes)
+    if g.node_sets:
+        _save_arrays(path / "node_sets", g.node_sets)
+    if g.node_table is not None:
+        pq.write_table(pa.table(g.node_table), path / "nodes.parquet")
     meta = {
         "schema_version": SCHEMA_VERSION,
         **{k: getattr(g, k) for k in IDENTITY},
@@ -63,7 +67,12 @@ def load_dir(path: str | Path, mmap: bool = True) -> TemporalGraph:
         if spec["boundaries"] is not None:
             spec["boundaries"] = {s: tuple(b) for s, b in spec["boundaries"].items()}
         splits[k] = Split(**spec, nodes=nodes)
+    node_table = None
+    if (path / "nodes.parquet").exists():
+        table = pq.read_table(path / "nodes.parquet")
+        node_table = {k: table[k].to_numpy() for k in table.column_names}
     return TemporalGraph(**{k: meta[k] for k in IDENTITY}, **arrays, y=y, splits=splits,
+                         node_table=node_table, node_sets=_load_arrays(path / "node_sets", mmap),
                          meta=meta["meta"])
 
 

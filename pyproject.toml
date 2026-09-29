@@ -16,9 +16,10 @@ pyg = ["torch_geometric>=2.4"]
 tsl = ["torch-spatiotemporal>=0.9"]
 tgb = ["py-tgb>=0.9"]
 plot = ["matplotlib>=3.7"]
+convert = ["h5py>=3.8"]
 
 [dependency-groups]
-dev = ["pytest>=8", "ruff>=0.5", "matplotlib>=3.7"]
+dev = ["pytest>=8", "ruff>=0.5", "matplotlib>=3.7", "h5py>=3.8"]
 
 [build-system]
 requires = ["hatchling"]

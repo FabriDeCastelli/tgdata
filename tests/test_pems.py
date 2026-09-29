@@ -69,3 +69,27 @@ def test_real_release(name):
     assert g.edge_index.shape[1] == stored
     assert tgdata.adjacency(g)[0].shape[1] == adjacency
     assert [len(g.task(split=s)) for s in ("train", "val", "test")] == sizes
+
+
+def test_largest_from_synthetic_release():
+    from tgdata.converters import largest
+
+    rng = np.random.default_rng(0)
+    T, N = 300, 6
+    flow = rng.uniform(1, 500, size=(T, N))
+    flow[5, 1], flow[6, 2] = np.nan, 0.0
+    table = {"id": np.array([str(i) for i in range(N)]), "district": np.array([3, 3, 4, 7, 8, 12])}
+    adj = np.eye(N) + np.diag(np.full(N - 1, 0.4), 1)
+    g = largest.build(flow, np.arange(T, dtype=np.int64) * 300, table, adj, {"f": "x"})
+    assert g.edge_index.shape[1] == 2 * N - 1
+    assert not g.mask[5, 1] and not g.mask[6, 2] and g.x[5, 1, 0] == 0
+    assert g.meta["edge_weight"]["observed"] is False
+    assert g.meta["edge_weight"]["threshold_lower_bound"] == pytest.approx(0.4)
+    np.testing.assert_array_equal(g.node_sets["gla"], [3, 4, 5])
+    np.testing.assert_array_equal(g.node_sets["d3"], [0, 1])
+    sub = g.select_nodes("gla")
+    assert sub.num_nodes == 3 and sub.node_table["district"].tolist() == [7, 8, 12]
+    samples = T - 23
+    sizes = [len(g.task(split=s)) for s in ("train", "val", "test")]
+    assert sizes == [round(samples * 0.6), round(samples * 0.2),
+                     samples - round(samples * 0.6) - round(samples * 0.2)]

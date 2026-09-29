@@ -94,7 +94,9 @@ def test_validate_rejects_unsorted_events(continuous_graph):
 
 def test_offline_registry():
     traffic = tgdata.list(domain="traffic_flow", offline=True)
-    assert traffic == ["pems03", "pems04", "pems07", "pems08"]
+    assert {"pems03", "pems04", "pems07", "pems08", "largest", "largest-d5"} <= set(traffic)
+    pool = tgdata.list(domain="traffic_flow", pool=True, offline=True)
+    assert "largest" not in pool and "largest-sd" not in pool and "largest-d5" in pool
     assert tgdata.info("pems08", offline=True)["time_mode"] == "discrete"
 
 

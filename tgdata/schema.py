@@ -49,20 +49,28 @@ class Split:
     `boundaries` are [start, end) in timestamp units, for sources that split by date;
     `nodes` holds node ids per split, for node-split tasks. With `strict`, a sample's inputs
     must lie inside its split too, as when a source cuts windows within each part.
+    `rounding` is how the source turns fractions into counts: "floor" cuts at
+    int(n * cumulative fraction); "round" sizes each part but the last as round(n * fraction).
     """
 
     fractions: dict[str, float] | None = None
     over: Literal["steps", "samples"] = "steps"
     strict: bool = False
+    rounding: Literal["floor", "round"] = "floor"
     boundaries: Bounds | None = None
     nodes: dict[str, np.ndarray] | None = None
     reference: str | None = None
 
     def resolve(self, length: int) -> Bounds:
-        """Cumulative floor, as in `int(n * 0.6), int(n * 0.8)`; the epsilon absorbs 0.7 + 0.1."""
         assert self.fractions is not None
-        cum = np.cumsum(list(self.fractions.values()))[:-1]
-        cuts = [0, *(math.floor(c * length + 1e-9) for c in cum), length]
+        fractions = list(self.fractions.values())
+        if self.rounding == "floor":
+            # The epsilon absorbs float sums such as 0.7 + 0.1 = 0.7999999999999999.
+            cum = np.cumsum(fractions)[:-1]
+            cuts = [0, *(math.floor(c * length + 1e-9) for c in cum), length]
+        else:
+            # Python's round (half to even), as the sources call it.
+            cuts = [0, *np.cumsum([round(length * f) for f in fractions[:-1]]).tolist(), length]
         return {k: (cuts[i], cuts[i + 1]) for i, k in enumerate(self.fractions)}
 
 
@@ -81,6 +89,8 @@ class TemporalGraph:
     edge_ptr: np.ndarray | None = None
     node_features: np.ndarray | None = None
     node_time: np.ndarray | None = None
+    node_table: dict[str, np.ndarray] | None = None
+    node_sets: dict[str, np.ndarray] = field(default_factory=dict)
     src: np.ndarray | None = None
     dst: np.ndarray | None = None
     t: np.ndarray | None = None
@@ -137,6 +147,9 @@ class TemporalGraph:
             split = Split(fractions={"train": train, "val": val_fraction, "test": test_fraction})
         return dataclasses.replace(self, splits={**self.splits, "default": split})
 
+    def select_nodes(self, nodes: str | np.ndarray) -> TemporalGraph:
+        return select_nodes(self, nodes)
+
     def task(self, name: str = "default", **params: Any) -> Task:
         from .tasks import make_task
 
@@ -192,23 +205,114 @@ def adjacency(g: TemporalGraph, kind: str | None = None) -> tuple[np.ndarray, np
     return np.asarray(g.edge_index)[:, keep], sim[keep].astype(np.float32)
 
 
+def select_nodes(g: TemporalGraph, nodes: str | np.ndarray) -> TemporalGraph:
+    """The subgraph induced by a named node set or sorted node ids.
+
+    A contiguous id range stays a view of the stored (memory-mapped) arrays; other sets copy
+    only their own columns. Channel stats are recombined exactly from the per-node stats.
+    Graph-level targets and node splits describe the full graph and are dropped.
+    """
+    ids = np.asarray(g.node_sets[nodes] if isinstance(nodes, str) else nodes, dtype=np.int64)
+    if len(ids) == 0 or (np.diff(ids) <= 0).any():
+        raise ValueError("node ids must be non-empty, sorted and unique")
+    contiguous = ids[-1] - ids[0] + 1 == len(ids)
+    at: slice | np.ndarray = slice(int(ids[0]), int(ids[-1]) + 1) if contiguous else ids
+    relabel = np.full(g.num_nodes, -1, dtype=np.int64)
+    relabel[ids] = np.arange(len(ids))
+
+    def rows(a: np.ndarray | None) -> np.ndarray | None:
+        return None if a is None else a[at]
+
+    def cols(a: np.ndarray | None) -> np.ndarray | None:
+        return None if a is None else a[:, at]
+
+    changes: dict[str, Any] = {
+        "x": cols(g.x), "mask": cols(g.mask),
+        "covariates": cols(g.covariates) if g.covariates is not None and g.covariates.ndim == 3
+        else g.covariates,
+        "node_features": rows(g.node_features), "node_time": rows(g.node_time),
+        "node_table": None if g.node_table is None
+        else {k: v[at] for k, v in g.node_table.items()},
+        "node_sets": {},
+        "splits": {k: s for k, s in g.splits.items() if s.nodes is None},
+        "y": {},
+    }
+    keep = None
+    if g.edge_index is not None:
+        ei = relabel[np.asarray(g.edge_index)]
+        keep = (ei >= 0).all(axis=0)
+        changes["edge_index"] = ei[:, keep]
+        changes["edge_weight"] = np.asarray(g.edge_weight)[keep]
+        if g.edge_ptr is not None:
+            ptr = np.asarray(g.edge_ptr)
+            step = np.repeat(np.arange(len(ptr) - 1), np.diff(ptr))
+            counts = np.bincount(step[keep], minlength=len(ptr) - 1)
+            changes["edge_ptr"] = np.concatenate([[0], np.cumsum(counts)]).astype(np.int64)
+    for key, tgt in g.y.items():
+        if tgt.level == "node" and tgt.index is None:
+            values = tgt.values[at] if tgt.static else tgt.values[:, at]
+            changes["y"][key] = dataclasses.replace(tgt, values=values)
+        elif tgt.level == "node":
+            inside = relabel[tgt.index] >= 0
+            values = tgt.values[inside] if tgt.static else tgt.values[:, inside]
+            changes["y"][key] = dataclasses.replace(tgt, values=values,
+                                                    index=relabel[tgt.index][inside])
+        elif tgt.level == "edge" and keep is not None:
+            changes["y"][key] = dataclasses.replace(tgt, values=tgt.values[keep])
+    meta = {**g.meta, "num_nodes": len(ids),
+            "selected_from": {"dataset": g.name,
+                              "nodes": nodes if isinstance(nodes, str) else "ids"}}
+    if "stats_node" in g.meta:
+        node_stats = {k: np.asarray(v)[at] for k, v in g.meta["stats_node"].items()
+                      if k != "steps"}
+        meta["stats_node"] = {**{k: v.tolist() for k, v in node_stats.items()},
+                              "steps": g.meta["stats_node"]["steps"]}
+        meta["stats"] = _pool_stats(node_stats, g.meta["stats_node"]["steps"])
+    name = f"{g.name}-{nodes}" if isinstance(nodes, str) else g.name
+    return dataclasses.replace(g, name=name, meta=meta, **changes)
+
+
+def _pool_stats(node: dict[str, np.ndarray], steps: list[int]) -> dict[str, list]:
+    """Channel mean/std over nodes from per-node (count, mean, std), exactly."""
+    count, mean, std = (np.asarray(node[k], dtype=np.float64) for k in ("count", "mean", "std"))
+    total = count.sum(axis=0)
+    pooled = (count * mean).sum(axis=0) / np.maximum(total, 1)
+    var = (count * (std**2 + (mean - pooled) ** 2)).sum(axis=0) / np.maximum(total, 1)
+    return {"mean": pooled.tolist(), "std": np.sqrt(var).tolist(), "count": total.tolist(),
+            "steps": steps}
+
+
 def compute_stats(
     g: TemporalGraph, split: str = "default", per_node: bool = False
 ) -> dict[str, list]:
-    """Mean/std of `x` over valid entries of the training steps of `split`."""
+    """Mean/std of `x` over valid entries of the training steps of `split`.
+
+    Streams over time in chunks, so it works on memory-mapped series larger than RAM.
+    """
     assert g.x is not None
     start, end = g.splits[split].resolve(g.num_steps)["train"]
-    x = np.asarray(g.x[start:end], dtype=np.float64)
-    if g.mask is None:
-        valid = np.ones(x.shape, dtype=bool)
-    else:
-        valid = np.broadcast_to(_mask_as_x(g.mask[start:end], x), x.shape)
-    axes = 0 if per_node else (0, 1)
-    count = valid.sum(axis=axes)
-    mean = np.where(valid, x, 0.0).sum(axis=axes) / np.maximum(count, 1)
-    var = np.where(valid, (x - mean) ** 2, 0.0).sum(axis=axes) / np.maximum(count, 1)
-    return {"mean": mean.tolist(), "std": np.sqrt(var).tolist(), "count": count.tolist(),
-            "steps": [start, end]}
+    N, F = g.x.shape[1:]
+    count, mean, m2 = np.zeros((N, F)), np.zeros((N, F)), np.zeros((N, F))
+    chunk = max(1, 2**26 // (N * F))
+    for lo in range(start, end, chunk):
+        hi = min(lo + chunk, end)
+        x = np.asarray(g.x[lo:hi], dtype=np.float64)
+        valid = (np.ones(x.shape, dtype=bool) if g.mask is None
+                 else np.broadcast_to(_mask_as_x(np.asarray(g.mask[lo:hi]), x), x.shape))
+        c = valid.sum(axis=0)
+        m = np.where(valid, x, 0.0).sum(axis=0) / np.maximum(c, 1)
+        v = np.where(valid, (x - m) ** 2, 0.0).sum(axis=0)
+        # Chan et al.: merge (count, mean, M2) of two disjoint sets exactly.
+        total = count + c
+        delta = m - mean
+        mean = mean + delta * c / np.maximum(total, 1)
+        m2 = m2 + v + delta**2 * count * c / np.maximum(total, 1)
+        count = total
+    std = np.sqrt(m2 / np.maximum(count, 1))
+    node = {"count": count, "mean": mean, "std": std}
+    if per_node:
+        return {k: v.tolist() for k, v in node.items()} | {"steps": [start, end]}
+    return _pool_stats(node, [start, end])
 
 
 def _mask_as_x(mask: np.ndarray, x: np.ndarray) -> np.ndarray:
@@ -269,6 +373,12 @@ def _discrete_errors(g: TemporalGraph) -> list[str]:
         errors.append(f"node_features has {g.node_features.shape[0]} rows, expected {N}")
     if g.node_time is not None and g.node_time.shape != (N,):
         errors.append(f"node_time must have shape {(N,)}")
+    for col, values in (g.node_table or {}).items():
+        if len(values) != N:
+            errors.append(f"node_table[{col}] has {len(values)} rows, expected {N}")
+    for key, ids in g.node_sets.items():
+        if len(ids) == 0 or (np.diff(ids) <= 0).any() or ids[0] < 0 or ids[-1] >= N:
+            errors.append(f"node_sets[{key}] must be sorted unique ids in [0, {N})")
     return errors + _edge_errors(g, T, N)
 
 

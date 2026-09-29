@@ -53,4 +53,15 @@ def push(
         revision=revision,
         commit_message=commit_message or f"Upload {g.name} (schema v{SCHEMA_VERSION})",
     )
+    add_to_domain_collection(api, rid, g.domain, private=private)
     return info.commit_url
+
+
+def add_to_domain_collection(api: HfApi, rid: str, domain: str, private: bool = True) -> str:
+    """One Hub collection per domain, titled like "Traffic flow", so the org page groups them."""
+    title = domain.replace("_", " ").capitalize()
+    collection = api.create_collection(title, namespace=namespace(), private=private,
+                                       description=f"tgdata datasets of the {domain} domain",
+                                       exists_ok=True)
+    api.add_collection_item(collection.slug, rid, "dataset", exists_ok=True)
+    return collection.slug
