@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 from . import tasks
@@ -16,8 +16,12 @@ from .schema import (
     compute_stats,
     validate,
 )
+from .tasks import ConcatTasks
 
-__version__ = version("tgdata")
+try:
+    __version__ = version("tgdata")
+except PackageNotFoundError:  # imported from a source checkout that is not installed
+    __version__ = "0+unknown"
 
 
 def load(
@@ -42,7 +46,7 @@ def load_domain(domain: str, root: str | Path | None = None) -> dict[str, Tempor
 
 
 __all__ = [
-    "SCHEMA_VERSION", "Split", "Target", "TemporalGraph", "__version__", "adjacency",
+    "SCHEMA_VERSION", "ConcatTasks", "Split", "Target", "TemporalGraph", "__version__", "adjacency",
     "compute_stats", "domains", "download", "info", "list", "load", "load_dir", "load_domain",
     "push", "save", "tasks", "validate",
 ]

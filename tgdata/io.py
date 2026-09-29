@@ -9,6 +9,7 @@ import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from .encoding import DerivedMask, Encoded
 from .schema import NPY_ARRAYS, SCHEMA_VERSION, Split, Target, TemporalGraph, validate
 
 IDENTITY = ("name", "domain", "tasks", "time_mode")
@@ -19,8 +20,14 @@ def save(g: TemporalGraph, path: str | Path) -> Path:
     validate(g)
     path = Path(path)
     (path / "arrays").mkdir(parents=True, exist_ok=True)
+    encoding: dict[str, Any] = {}
     for name in NPY_ARRAYS:
         arr = getattr(g, name)
+        if isinstance(arr, DerivedMask):
+            encoding[name] = {"derived": DerivedMask.rule}
+            continue
+        if isinstance(arr, Encoded):
+            encoding[name], arr = arr.spec(), arr.raw
         if arr is not None:
             np.save(path / "arrays" / f"{name}.npy", np.ascontiguousarray(arr))
     if g.time_mode == "continuous":
@@ -37,6 +44,7 @@ def save(g: TemporalGraph, path: str | Path) -> Path:
     meta = {
         "schema_version": SCHEMA_VERSION,
         **{k: getattr(g, k) for k in IDENTITY},
+        "encoding": encoding,
         "y": {k: _fields(t, exclude=TARGET_ARRAYS) for k, t in g.y.items()},
         "splits": {k: _fields(s, exclude=("nodes",)) | {"nodes": s.nodes is not None}
                    for k, s in g.splits.items()},
@@ -60,6 +68,12 @@ def load_dir(path: str | Path, mmap: bool = True) -> TemporalGraph:
         arrays[file.stem] = np.load(file, mmap_mode="r" if mmap else None)
     if (path / "events.parquet").exists():
         arrays.update(_read_events(path / "events.parquet"))
+    for name, spec in meta.get("encoding", {}).items():
+        if "decimals" in spec:
+            arrays[name] = Encoded(arrays[name], spec["decimals"])
+    for name, spec in meta.get("encoding", {}).items():
+        if "derived" in spec:
+            arrays[name] = DerivedMask(arrays["x"])
     y = {k: Target(**spec, **_load_arrays(path / "y" / k, mmap)) for k, spec in meta["y"].items()}
     splits = {}
     for k, spec in meta["splits"].items():

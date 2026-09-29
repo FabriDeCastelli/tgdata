@@ -1,5 +1,10 @@
+import os
+
 import numpy as np
 import pytest
+
+# Tests compare batches with numpy arrays; GPU tests pass `device` explicitly.
+os.environ.setdefault("TGDATA_DEVICE", "cpu")
 
 from tgdata import Split, Target, TemporalGraph, compute_stats
 

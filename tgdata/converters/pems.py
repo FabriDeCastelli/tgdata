@@ -18,6 +18,7 @@ from typing import Any
 import numpy as np
 
 from .. import hub, io
+from ..encoding import compact
 from ..schema import Split, TemporalGraph, compute_stats, validate
 from . import Edge, drop_duplicate_edges
 
@@ -160,6 +161,7 @@ def build(
         },
         meta=meta,
     )
+    g = compact(g)
     g.meta["stats"] = compute_stats(g)
     g.meta["stats_node"] = compute_stats(g, per_node=True)
     validate(g)

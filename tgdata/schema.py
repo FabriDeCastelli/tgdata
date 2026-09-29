@@ -7,10 +7,12 @@ from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 
+from .encoding import DerivedMask
+
 if TYPE_CHECKING:
     from .tasks.base import Task
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 TimeMode = Literal["discrete", "continuous"]
 Bounds = dict[str, tuple[int, int]]
@@ -218,11 +220,14 @@ def select_nodes(g: TemporalGraph, nodes: str | np.ndarray) -> TemporalGraph:
     def rows(a: np.ndarray | None) -> np.ndarray | None:
         return None if a is None else a[at]
 
-    def cols(a: np.ndarray | None) -> np.ndarray | None:
-        return None if a is None else a[:, at]
+    def cols(a: Any) -> Any:
+        if a is None or hasattr(a, "take_nodes"):
+            return None if a is None else a.take_nodes(at)
+        return a[:, at]
 
+    x = cols(g.x)
     changes: dict[str, Any] = {
-        "x": cols(g.x), "mask": cols(g.mask),
+        "x": x, "mask": DerivedMask(x) if isinstance(g.mask, DerivedMask) else cols(g.mask),
         "covariates": cols(g.covariates) if g.covariates is not None and g.covariates.ndim == 3
         else g.covariates,
         "node_features": rows(g.node_features), "node_time": rows(g.node_time),

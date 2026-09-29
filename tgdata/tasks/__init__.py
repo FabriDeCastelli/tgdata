@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from ..schema import TemporalGraph
-from .base import TASKS, Task, register_task
+from .base import TASKS, ConcatTasks, Task, passthrough, register_task
 from .classification import GraphClassification
 from .forecasting import NodeForecasting
 
@@ -19,5 +19,5 @@ def make_task(g: TemporalGraph, name: str = "default", **params: Any) -> Task:
     return TASKS[name](g, **params)
 
 
-__all__ = ["TASKS", "GraphClassification", "NodeForecasting", "Task", "available", "make_task",
-           "register_task"]
+__all__ = ["TASKS", "ConcatTasks", "GraphClassification", "NodeForecasting", "Task", "available",
+           "make_task", "passthrough", "register_task"]

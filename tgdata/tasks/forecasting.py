@@ -1,23 +1,30 @@
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from typing import Literal
 
 import numpy as np
 import torch
 
-from ..sampling import collate_pad
-from ..schema import TemporalGraph, _mask_as_x, adjacency
+from ..device import decode, on_device, resolve_device
+from ..schema import TemporalGraph
 from ..time import to_steps
-from .base import Sample, Task, register_task, select_anchors
+from .base import Sample, Task, passthrough, register_task, select_anchors
+
+# Keys whose first dimension is the batch; the rest (static edges) are shared by the batch.
+BATCHED = ("x", "y", "mask_x", "mask_y", "covariates", "timestamps", "t")
 
 
 @register_task
 class NodeForecasting(Task):
-    """Predict steps [t, t + horizon) of `x` (or of node target `target`) from [t - window, t)."""
+    """Predict steps [t, t + horizon) of `x` (or of node target `target`) from [t - window, t).
+
+    Batches are cut on `device` (CUDA when available) from arrays uploaded once, by
+    `__getitems__`, which torch's DataLoader calls with a whole batch of indices.
+    """
 
     name = "node_forecasting"
-    collate = staticmethod(collate_pad)
+    collate = staticmethod(passthrough)
 
     def __init__(
         self,
@@ -32,6 +39,7 @@ class NodeForecasting(Task):
         normalize: Literal["channel", "node"] | None = None,
         transform: Callable[[Sample], Sample] | None = None,
         adjacency_kind: str | None = None,
+        device: str | torch.device | None = None,
     ) -> None:
         if not self.applies(g):
             raise ValueError(f"{g.name} has no node time series to forecast")
@@ -42,57 +50,75 @@ class NodeForecasting(Task):
         self.anchors = select_anchors(g, candidates, split, splits,
                                       first=candidates - self.window,
                                       last=candidates + self.horizon - 1, strict=strict)
-        self.target = None if target is None else g.y[target]
-        self.target_channels = g.meta.get("target_channels")
-        self.scale = _scale(g, normalize) if normalize else None
-        if g.edge_index is not None:
-            self.edge_index, self.edge_weight = adjacency(g, adjacency_kind)
-            if g.is_static:
-                self.static_edges = _edges(self.edge_index, self.edge_weight)
+        self.device = resolve_device(device)
+        self.data = on_device(g, self.device, adjacency_kind)
+        self.anchor_steps = torch.as_tensor(self.anchors, device=self.device)
+        self.offsets = torch.arange(-self.window, self.horizon, device=self.device)
+        self.target = None if target is None else torch.as_tensor(
+            np.asarray(g.y[target].values), device=self.device)
+        channels = g.meta.get("target_channels")
+        self.target_channels = None if channels is None else torch.as_tensor(
+            channels, device=self.device)
+        self.scale = None
+        if normalize:
+            mean, std = _scale(g, normalize)
+            self.scale = (torch.from_numpy(mean).to(self.device),
+                          torch.from_numpy(std).to(self.device))
 
     @classmethod
     def applies(cls, g: TemporalGraph) -> bool:
         return g.time_mode == "discrete" and g.x is not None
 
-    def __getitem__(self, i: int) -> Sample:
-        g, t = self.g, int(self.anchors[i])
-        lo, hi = t - self.window, t + self.horizon
-        x = np.array(g.x[lo:hi], dtype=np.float32)  # a copy: slices of a memmap are read-only
+    def __getitems__(self, indices: Sequence[int]) -> Sample:
+        data, w = self.data, self.window
+        t = self.anchor_steps[torch.as_tensor(indices, device=self.device)]
+        rows = t[:, None] + self.offsets  # [B, window + horizon]
+        raw = data["x"][rows]  # [B, window + horizon, N, F], stored dtype
+        x = decode(raw, data.get("x_divisor"))
         if self.scale is not None:
             x = (x - self.scale[0]) / self.scale[1]
         if self.target is not None:
-            y = np.asarray(self.target.values[t:hi])
+            y = self.target[rows[:, w:]]
         elif self.target_channels is not None:
-            y = x[self.window:, :, self.target_channels]
+            y = x[:, w:, :, self.target_channels]
         else:
-            y = x[self.window:]
-        sample: Sample = {"x": torch.from_numpy(x[: self.window]),
-                          "y": torch.from_numpy(np.array(y)), "t": t}
-        if g.mask is not None:
-            mask = torch.from_numpy(_mask_as_x(np.asarray(g.mask[lo:hi]), x).copy())
-            sample["mask_x"] = mask[: self.window]
-            mask_y = mask[self.window:]
+            y = x[:, w:]
+        batch: Sample = {"x": x[:, :w], "y": y, "t": t}
+        if data["mask_derived"] or "mask" in data:
+            mask = raw[..., 0] != 0 if data["mask_derived"] else data["mask"][rows]
+            mask = mask.unsqueeze(-1) if mask.ndim == 3 else mask
+            mask_y = mask[:, w:]
             if self.target is None and self.target_channels is not None and mask.shape[-1] > 1:
                 mask_y = mask_y[..., self.target_channels]
-            sample["mask_y"] = mask_y
-        if g.covariates is not None:
-            sample["covariates"] = torch.from_numpy(np.array(g.covariates[lo:hi], np.float32))
-        if g.timestamps is not None:
-            sample["timestamps"] = torch.from_numpy(np.array(g.timestamps[lo:hi]))
-        if g.edge_index is not None:
-            sample.update(self.static_edges if g.is_static else self._dynamic_edges(lo, t))
-        return self.transform(sample) if self.transform else sample
+            batch["mask_x"], batch["mask_y"] = mask[:, :w], mask_y
+        if "covariates" in data:
+            batch["covariates"] = decode(data["covariates"][rows], data.get("covariates_divisor"))
+        if "timestamps" in data:
+            batch["timestamps"] = data["timestamps"][rows]
+        if "edge_index" in data:
+            batch.update(self._edges(rows))
+        return self.transform(batch) if self.transform else batch
 
-    def _dynamic_edges(self, lo: int, hi: int) -> Sample:
-        ptr = np.array(self.g.edge_ptr[lo : hi + 1], dtype=np.int64)
-        a, b = int(ptr[0]), int(ptr[-1])
-        return {**_edges(self.edge_index[:, a:b], self.edge_weight[a:b]),
-                "edge_ptr": torch.from_numpy(ptr - a)}
+    def __getitem__(self, i: int) -> Sample:
+        batch = self.__getitems__([i])
+        sample = {k: v[0] if k in BATCHED else v for k, v in batch.items()}
+        if "edges" in sample:
+            sample.update(sample.pop("edges")[0])
+        sample["t"] = int(sample["t"])
+        return sample
 
-
-def _edges(edge_index: np.ndarray, edge_weight: np.ndarray) -> Sample:
-    return {"edge_index": torch.from_numpy(np.array(edge_index, dtype=np.int64)),
-            "edge_weight": torch.from_numpy(np.array(edge_weight, dtype=np.float32))}
+    def _edges(self, rows: torch.Tensor) -> Sample:
+        data = self.data
+        if "edge_ptr" not in data:
+            return {"edge_index": data["edge_index"], "edge_weight": data["edge_weight"]}
+        ptr, w = data["edge_ptr"], self.window
+        edges = []
+        for lo, hi in zip(rows[:, 0].tolist(), rows[:, w].tolist(), strict=True):
+            a, b = int(ptr[lo]), int(ptr[hi])
+            edges.append({"edge_index": data["edge_index"][:, a:b],
+                          "edge_weight": data["edge_weight"][a:b],
+                          "edge_ptr": ptr[lo:hi + 1] - a})
+        return {"edges": edges}
 
 
 def _scale(g: TemporalGraph, normalize: str) -> tuple[np.ndarray, np.ndarray]:

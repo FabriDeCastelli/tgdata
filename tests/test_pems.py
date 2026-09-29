@@ -33,7 +33,7 @@ def test_astgcn_lineage(tmp_path):
     assert g.x.shape == (100, 5, 1) and g.covariates.shape == (100, 5, 2)
     np.testing.assert_array_equal(g.edge_weight, [10.0, 20.0])
     assert tgdata.adjacency(g)[1].tolist() == [1.0, 1.0]
-    assert not g.mask[3, 2] and g.mask.sum() == 100 * 5 - 1
+    assert not g.mask[3, 2] and np.asarray(g.mask).sum() == 100 * 5 - 1
     split = g.splits["default"]
     assert split.over == "samples" and not split.strict
     s = g.task()[0]

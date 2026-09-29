@@ -17,6 +17,7 @@ from typing import Any
 import numpy as np
 
 from .. import hub, io
+from ..encoding import compact
 from ..schema import Split, TemporalGraph, compute_stats, validate
 
 NAME = "largest"
@@ -108,6 +109,7 @@ def build(
             "provenance": provenance,
         },
     )
+    g = compact(g)
     g.meta["stats"] = compute_stats(g)
     g.meta["stats_node"] = compute_stats(g, per_node=True)
     validate(g)

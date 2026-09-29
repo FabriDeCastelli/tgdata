@@ -23,7 +23,5 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python }}
-      - run: uv venv
-      - run: uv pip install torch --index-url https://download.pytorch.org/whl/cpu
-      - run: uv pip install -e ".[plot]" pytest
-      - run: uv run --no-sync pytest -q
+      - run: uv sync --locked --extra cpu --extra plot
+      - run: uv run --locked --extra cpu --extra plot pytest -q

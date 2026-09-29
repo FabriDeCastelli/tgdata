@@ -21,6 +21,19 @@ g.to_pyg(); g.to_tsl()
 Install with `pip install "tgdata @ git+ssh://git@github.com/FabriDeCastelli/tgdata.git@v0.1.0"`,
 adding `[plot]` for plotting and `[pyg]` or `[tsl]` for the adapters.
 
+No GPU is needed: nothing in tgdata uses CUDA, and it runs on any torch build. The install
+only decides which build you download:
+
+| setting | command |
+|---|---|
+| any machine, default torch | `pip install "tgdata @ git+ssh://…"` |
+| CPU only (no NVIDIA libraries, ~1 GB smaller) | `uv pip install --torch-backend=cpu "tgdata @ git+ssh://…"`, or `pip install torch --index-url https://download.pytorch.org/whl/cpu` first |
+| developing tgdata, CPU | `uv sync --extra cpu`, then `uv run --extra cpu …` |
+| developing tgdata, CUDA 12.8 drivers | `uv sync --extra cu128`, then `uv run --extra cu128 …` |
+
+When developing, pass the same `--extra` to every `uv run`: without it, uv re-syncs to PyPI's
+default torch.
+
 ## Supported datasets
 
 | name | domain | default task | nodes | steps | dates | freq | target | covariates | graph | split | source |
@@ -74,6 +87,13 @@ Each repo holds:
 Every field except the identity (`name`, `domain`, `tasks`, `time_mode`) is optional; `x` is
 `None` for graphs without a node time series.
 
+**Storage.** Each channel is stored as the smallest integer type that holds it losslessly,
+with a per-channel number of decimals (`encoding` in `meta.json`): flow as `int16`, occupancy as
+`int16` with 4 decimals, speed with 1. Decoding reproduces the source's float32 values exactly,
+and every consumer sees float32. A mask that equals its rule (`x != 0`) is not stored but
+recomputed. Encoded arrays index, slice and `np.asarray` like arrays; call `np.asarray(g.x)`
+for whole-array numpy methods.
+
 **Time.** Data is stored at the source's own sampling interval or snapshots (`meta.freq`),
 never resampled or aggregated. Windows and horizons count those steps; a duration such as
 `"1h"` is accepted only when it is a whole number of steps.
@@ -120,28 +140,45 @@ deterministically; `__getitem__` only reads them.
 A sample belongs to a split when its targets lie inside it; its inputs may reach back into the
 previous split unless `strict=True`. New task types register with `@tgdata.tasks.register_task`.
 
-## Batching
+## Batching on the GPU
+
+Tasks build whole batches on their device, CUDA by default when it is available (the CPU
+otherwise, with a warning; `device=` or `$TGDATA_DEVICE` overrides it). Each dataset is uploaded
+once, in its compact stored types, and shared by all tasks on the same graph; a batch is cut
+with a few indexing calls and decoded to float32 as it is cut. The batch hook is torch's own
+`Dataset.__getitems__`, so the loaders are standard `DataLoader`s that Lightning uses as is.
 
 ```python
-from functools import partial
+task = g.task(split="train", normalize="channel")          # on CUDA if available
+loader = task.loader(batch_size=64, shuffle=True)          # a torch DataLoader
+trainer.fit(model, train_dataloaders=loader)               # Lightning, unchanged
 
-from torch.utils.data import ConcatDataset, DataLoader
-from tgdata.sampling import MultiDatasetSampler, collate_pad
-
-parts = [tgdata.load(n).task() for n in names]
-sampler = MultiDatasetSampler([len(p) for p in parts], batch_size=32, num_batches=10_000,
-                              temperature=2.0)
-loader = DataLoader(ConcatDataset(parts), batch_sampler=sampler,
-                    collate_fn=partial(collate_pad, max_nodes=512))
+pool = tgdata.ConcatTasks([tgdata.load(n).task(normalize="channel")
+                           for n in tgdata.list(domain="traffic_flow", pool=True)])
+loader = pool.loader(batch_size=64, num_batches=10_000, temperature=2.0)
 ```
 
-Each batch comes from one dataset, picked with probability ∝ size^(1/temperature).
+Each pool batch comes from one dataset, picked with probability ∝ size^(1/temperature), so it
+needs no padding; static edges come once per batch (`edge_index [2, E]`). Batches are
+dictionaries of tensors on the task's device: `x [B, window, N, F]`, `y`, `mask_x`, `mask_y`,
+`covariates`, `timestamps`, `t`, `edge_index`, `edge_weight`. `task[i]` is the same batch with
+one sample, for inspection.
 
-- `collate_pad` pads nodes to the largest graph in the batch (`node_mask`, `node_ids`) and
-  replaces graphs over `max_nodes` by a random induced subgraph; edges stay per sample in
-  `batch["edges"]`.
-- `collate_concat` concatenates nodes with a `batch` vector, as PyG does, and merges edges step
-  by step, so one `edge_ptr [window + 1]` indexes window step k across the whole batch.
+`benchmarks/loader.py` compares this with tsl and with precomputed windows (the ASTGCN/STSGCN
+practice), on one A100 with a GCN-GRU trained by Lightning, against the same model fed a batch
+already on the GPU:
+
+| dataset (batch) | loader: tgdata | tsl, 0 / 8 workers | precomputed windows | training step: tgdata | tsl, 0 / 8 workers | precomputed windows |
+|---|---|---|---|---|---|---|
+| PEMS07 (64) | 265,873 /s | 26,224 / 10,072 /s | 25,137 /s | +1.0% | +9.7% / +4.9% | +25.0% |
+| LargeST CA (16) | 69,304 /s | 5,740 / 1,402 /s | – | +0.5% | +5.2% / +3.4% | – |
+
+Training-step columns are the slowdown against the batch already on the GPU.
+
+`collate_concat` (graph classification) batches snapshot samples as PyG does: nodes
+concatenated with a `batch` vector, edges merged step by step so one `edge_ptr [window + 1]`
+indexes window step k across the batch. `collate_pad` pads per-sample batches of different
+graphs to a common node count, optionally sampling `max_nodes` subgraphs.
 
 ## Plotting
 
