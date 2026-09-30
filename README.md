@@ -6,12 +6,16 @@
 
 ## Install
 
+In a uv project (nothing is cloned into it; `uv.lock` pins the version):
+
 ```bash
-pip install "tgdata[plot] @ git+ssh://git@github.com/FabriDeCastelli/tgdata.git@v0.2.0"
+uv add "tgdata[plot] @ git+ssh://git@github.com/FabriDeCastelli/tgdata.git" --tag v0.2.1
 hf auth login   # the datasets are private to the tgdata-hub organisation
 ```
 
-No GPU is required; see [installing without CUDA](docs/contributing.md#installing).
+With pip: `pip install "tgdata[plot] @ git+ssh://git@github.com/FabriDeCastelli/tgdata.git@v0.2.1"`.
+Add `cu128` to the extras for CUDA 12.8 drivers, or `cpu` for a machine without a GPU; see
+[installing](docs/contributing.md#installing).
 
 ## What you can do
 
