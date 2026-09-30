@@ -26,7 +26,7 @@ class GraphClassification(Task):
         g: TemporalGraph,
         target: str,
         window: int = 1,
-        split: str = "train",
+        split: str | None = "train",
         splits: str = "default",
         strict: bool | None = None,
         transform: Callable[[Sample], Sample] | None = None,

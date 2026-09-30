@@ -130,3 +130,44 @@ def test_samples_from_disk_are_writable(static_graph, tmp_path):
     s = tgdata.load_dir(tmp_path).window(4, 3)[0]
     for key in ("x", "y", "mask_x", "mask_y", "covariates", "edge_index", "edge_weight"):
         s[key].copy_(s[key].clone())
+
+
+def sliding_graph(T=8):
+    from tgdata import TemporalGraph
+
+    return TemporalGraph(
+        name="line", domain="synthetic", tasks=["node_forecasting"], time_mode="discrete",
+        x=np.arange(1, T + 1, dtype=np.float32).reshape(T, 1, 1),
+        splits={"default": Split(fractions={"train": 0.6, "val": 0.2, "test": 0.2})},
+        meta={"freq": "1h"})
+
+
+def test_every_window_in_order():
+    task = sliding_graph().task("node_forecasting", window=3, horizon=0, split=None)
+    windows = [w for batch in task.loader(batch_size=2) for w in batch["x"][:, :, 0, 0].tolist()]
+    assert windows == [[1, 2, 3], [2, 3, 4], [3, 4, 5], [4, 5, 6], [5, 6, 7], [6, 7, 8]]
+
+
+def test_shuffled_windows_return_to_their_positions(tmp_path):
+    task = sliding_graph().task("node_forecasting", window=3, horizon=0, split=None)
+    out = np.lib.format.open_memmap(tmp_path / "emb.npy", mode="w+", dtype=np.float32,
+                                    shape=(len(task), 1))
+    torch.manual_seed(0)
+    for batch in task.loader(batch_size=4, shuffle=True):
+        out[(batch["t"] - task.window).numpy()] = batch["x"][:, -1, 0].numpy()
+    np.testing.assert_array_equal(out[:, 0], [3, 4, 5, 6, 7, 8])
+
+
+def test_split_samples_map_to_rows_of_the_all_windows_task(static_graph):
+    every = static_graph.task("node_forecasting", window=4, horizon=0, split=None)
+    rows_seen = []
+    for split in ("train", "val", "test"):
+        task = static_graph.task("node_forecasting", window=4, horizon=3, split=split)
+        rows = task.window_starts
+        np.testing.assert_array_equal(every.__getitems__(list(rows))["x"],
+                                      task.__getitems__(list(range(len(task))))["x"])
+        batch = task.__getitems__([0, len(task) - 1])
+        np.testing.assert_array_equal((batch["t"] - task.window).numpy(), rows[[0, -1]])
+        rows_seen.append(rows)
+    all_rows = np.concatenate(rows_seen)
+    assert len(np.unique(all_rows)) == len(all_rows)

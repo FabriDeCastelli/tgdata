@@ -31,7 +31,7 @@ class NodeForecasting(Task):
         g: TemporalGraph,
         window: int | str,
         horizon: int | str,
-        split: str = "train",
+        split: str | None = "train",
         splits: str = "default",
         stride: int = 1,
         strict: bool | None = None,
@@ -68,6 +68,13 @@ class NodeForecasting(Task):
     @classmethod
     def applies(cls, g: TemporalGraph) -> bool:
         return g.time_mode == "discrete" and g.x is not None
+
+    @property
+    def window_starts(self) -> np.ndarray:
+        """First input step of each sample, in order: its row in a file holding one result per
+        window of the whole series (`split=None, horizon=0`), so any split maps onto that file
+        without shifting."""
+        return self.anchors - self.window
 
     def __getitems__(self, indices: Sequence[int]) -> Sample:
         data, w = self.data, self.window

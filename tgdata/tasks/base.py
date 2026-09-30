@@ -79,18 +79,20 @@ class ConcatTasks(ConcatDataset):
 def select_anchors(
     g: TemporalGraph,
     anchors: np.ndarray,
-    split: str,
+    split: str | None,
     split_name: str,
     first: np.ndarray,
     last: np.ndarray,
     strict: bool | None,
 ) -> np.ndarray:
-    """Anchors of `split` under `g.splits[split_name]`.
+    """Anchors of `split` under `g.splits[split_name]`; all anchors, in order, when `split` is None.
 
     `first`/`last` are, per anchor, the first input step and the last target step. A sample
     belongs to a split when its targets lie inside it; with `strict` (default: the split's own
     setting) its inputs must too.
     """
+    if split is None:
+        return anchors
     spec = g.splits[split_name]
     strict = spec.strict if strict is None else strict
     if spec.nodes is not None:

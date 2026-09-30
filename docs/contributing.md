@@ -6,10 +6,10 @@ tgdata never needs a GPU; the install only decides which torch build you downloa
 
 | goal | command |
 |---|---|
-| use tgdata in a uv project, default torch | `uv add "tgdata @ git+ssh://git@github.com/FabriDeCastelli/tgdata.git" --tag v0.2.1` |
-| ... with CUDA 12.8 drivers | `uv add "tgdata[cu128] @ git+ssh://..." --tag v0.2.1` |
-| ... on a CPU-only machine (about 1 GB smaller) | `uv add "tgdata[cpu] @ git+ssh://..." --tag v0.2.1` |
-| use tgdata with pip | `pip install "tgdata @ git+ssh://git@github.com/FabriDeCastelli/tgdata.git@v0.2.1"` |
+| use tgdata in a uv project, default torch | `uv add "tgdata @ git+ssh://git@github.com/FabriDeCastelli/tgdata.git" --tag v0.2.2` |
+| ... with CUDA 12.8 drivers | `uv add "tgdata[cu128] @ git+ssh://..." --tag v0.2.2` |
+| ... on a CPU-only machine (about 1 GB smaller) | `uv add "tgdata[cpu] @ git+ssh://..." --tag v0.2.2` |
+| use tgdata with pip | `pip install "tgdata @ git+ssh://git@github.com/FabriDeCastelli/tgdata.git@v0.2.2"` |
 | develop tgdata, CPU | `uv sync --extra cpu`, then `uv run --extra cpu pytest` |
 | develop tgdata, CUDA 12.8 driver | `uv sync --extra cu128`, then `uv run --extra cu128 pytest` |
 

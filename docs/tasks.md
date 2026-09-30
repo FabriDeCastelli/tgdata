@@ -18,8 +18,9 @@ tgdata.tasks.available(g)                                    # task types this d
 | `node_forecasting` | the last `window` steps of every node, and the next `horizon` steps to predict | `window`, `horizon` (steps, or a duration such as `"1h"`), `split`, `normalize`, `stride`, `strict`, `target`, `device` |
 | `graph_classification` | the last `window` snapshots, restricted to the nodes active in them, and the graph's label | `target`, `window`, `split`, `strict` |
 
-- `split` is `"train"`, `"val"` or `"test"` of the dataset's default split; `splits=` picks
-  another stored split, and `g.with_split("70/10/20")` makes one the default.
+- `split` is `"train"`, `"val"` or `"test"` of the dataset's default split, or `None` for the
+  whole series; `splits=` picks another stored split, and `g.with_split("70/10/20")` makes one
+  the default.
 - A sample belongs to the split its targets fall in; its inputs may reach back into the previous
   split unless `strict=True` (some sources, such as STSGCN, make that the default).
 - `normalize="channel"` or `"node"` standardises with the training statistics stored in the
@@ -49,6 +50,36 @@ batch = next(iter(loader))
 `task[i]` returns one sample with the same keys and no batch dimension. Batches stay on the
 device they were built on: call `.cpu()` before using numpy or matplotlib (tgdata's plotting
 functions do this for you).
+
+## Every window of a series, in order
+
+`split=None` gives every window of the whole series, and `horizon=0` makes windows without a
+target. With `shuffle=False` (the default) the windows come in series order: window k holds
+steps k, ..., k + window - 1. Every batch also carries `t`, the step right after each window,
+so `t - window` is its position even when batches are shuffled.
+
+This is how to embed every window of a series and save the result to disk:
+
+```python
+task = g.task("node_forecasting", window=12, horizon=0, split=None)   # T - 11 windows
+out = np.lib.format.open_memmap("emb.npy", mode="w+", dtype=np.float32,
+                                shape=(len(task), g.num_nodes, dim))
+with torch.no_grad():
+    for batch in task.loader(batch_size=256):                  # add shuffle=True if needed
+        out[(batch["t"] - task.window).cpu().numpy()] = encoder(batch["x"]).cpu().numpy()
+out.flush()                                                     # row k: window starting at step k
+```
+
+The original train/val/test samples map onto these rows without any shift: `window_starts` is
+each sample's row, so every split keeps exactly the samples, and the sizes, of the source's split.
+
+```python
+emb = np.load("emb.npy", mmap_mode="r")
+for split in ("train", "val", "test"):
+    task = g.task(split=split)                  # the source's task, e.g. 12 steps in, 12 out
+    inputs = emb[task.window_starts]            # one embedding per sample of that split
+    # the same rows, batch by batch: emb[(batch["t"] - task.window).cpu().numpy()]
+```
 
 ## Several datasets
 
