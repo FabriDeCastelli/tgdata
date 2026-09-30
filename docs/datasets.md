@@ -6,16 +6,17 @@ are that paper's, cited in the dataset's metadata (`g.meta`). All are private to
 
 ## Traffic flow
 
-Flow of vehicles per 5 minutes on Californian freeways (Caltrans PeMS). The target is flow; a
-reading of 0 means the sensor did not report and is masked, as all these sources do.
+Flow of vehicles per 5 minutes on Californian freeways (Caltrans PeMS). Every dataset holds
+flow only (the PEMS04 and PEMS08 releases also carry occupancy and speed, which are left out).
+A reading of 0 means the sensor did not report and is masked, as all these sources do.
 
-| name | sensors | steps | dates | covariates | graph | split | introduced by |
-|---|---|---|---|---|---|---|---|
-| `pems03` | 358 | 26,208 | 2018-09-01 – 2018-11-30 | – | road links, symmetric | 60/20/20 of time, no window crosses | STSGCN (Song et al., 2020) |
-| `pems04` | 307 | 16,992 | 2018-01-01 – 2018-02-28 | occupancy, speed | road links, directed | 60/20/20 of windows | ASTGCN (Guo et al., 2019) |
-| `pems07` | 883 | 28,224 | 2017-05-01 – 2017-08-06 | – | road links, symmetric | 60/20/20 of time, no window crosses | STSGCN (Song et al., 2020) |
-| `pems08` | 170 | 17,856 | 2016-07-01 – 2016-08-31 | occupancy, speed | road links, directed | 60/20/20 of windows | ASTGCN (Guo et al., 2019) |
-| `largest` | 8,600 | 105,120 | 2019-01-01 – 2019-12-31 | – | Gaussian kernel of road distance | 60/20/20 of windows | LargeST (Liu et al., 2023) |
+| name | sensors | steps | dates | graph | split | introduced by |
+|---|---|---|---|---|---|---|
+| `pems03` | 358 | 26,208 | 2018-09-01 – 2018-11-30 | road links, symmetric | 60/20/20 of time, no window crosses | STSGCN (Song et al., 2020) |
+| `pems04` | 307 | 16,992 | 2018-01-01 – 2018-02-28 | road links, directed | 60/20/20 of windows | ASTGCN (Guo et al., 2019) |
+| `pems07` | 883 | 28,224 | 2017-05-01 – 2017-08-06 | road links, symmetric | 60/20/20 of time, no window crosses | STSGCN (Song et al., 2020) |
+| `pems08` | 170 | 17,856 | 2016-07-01 – 2016-08-31 | road links, directed | 60/20/20 of windows | ASTGCN (Guo et al., 2019) |
+| `largest` | 8,600 | 105,120 | 2019-01-01 – 2019-12-31 | Gaussian kernel of road distance | 60/20/20 of windows | LargeST (Liu et al., 2023) |
 
 The default task of each is 12 steps (one hour) in, 12 steps out.
 

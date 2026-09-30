@@ -80,7 +80,7 @@ class Spec:
     district: int
     start: datetime
     num_steps: int
-    covariates: tuple[str, ...]
+    left_out: tuple[str, ...]  # channels after flow in the release, not part of the dataset
     lineage: dict[str, Any]
     weight_column: str = "cost"
     uses_sensor_ids: bool = False
@@ -100,7 +100,6 @@ SPECS = {
     "pems08": Spec(8, datetime(2016, 7, 1, tzinfo=timezone.utc), 17856,
                    ("occupancy", "speed"), ASTGCN),
 }
-UNITS = {"flow": "vehicles/5min", "occupancy": "fraction", "speed": "mph"}
 
 
 def build(
@@ -111,13 +110,14 @@ def build(
     edges = drop_duplicate_edges(edges)
     lineage = spec.lineage
     upper = name.upper()
-    channels = ("flow", *spec.covariates)
+    if data.shape[-1] != 1 + len(spec.left_out):
+        raise ValueError(f"{upper} has {data.shape[-1]} channels, expected flow + {spec.left_out}")
     meta: dict[str, Any] = {
         "freq": "5min",
         "timestamps_tz": "America/Los_Angeles wall time, encoded as UTC epoch seconds",
         "channels": ["flow"],
-        "covariate_channels": list(spec.covariates),
-        "units": {c: UNITS[c] for c in channels},
+        "covariate_channels": [],
+        "units": {"flow": "vehicles/5min"},
         "mask_rule": "flow != 0",
         "directed": True,
         "edge_weight": {
@@ -142,13 +142,18 @@ def build(
         meta["node_ids"] = "rows follow the PeMS sensor ids listed in PEMS03.txt"
     if spec.date_note:
         meta["date_note"] = spec.date_note
+    if spec.left_out:
+        meta["left_out_channels"] = {
+            "channels": list(spec.left_out),
+            "note": f"{upper}.npz also holds these as channels 1-{len(spec.left_out)}; the "
+                    "traffic_flow domain keeps flow only (channel 0)",
+        }
     g = TemporalGraph(
         name=name,
         domain="traffic_flow",
         tasks=["node_forecasting"],
         time_mode="discrete",
         x=data[..., :1].astype(np.float32),
-        covariates=data[..., 1:].astype(np.float32) if spec.covariates else None,
         mask=data[..., 0] != 0,
         timestamps=int(spec.start.timestamp()) + STEP_SECONDS * np.arange(T, dtype=np.int64),
         edge_index=np.array([(s, d) for s, d, _ in edges], dtype=np.int64).T.reshape(2, -1),

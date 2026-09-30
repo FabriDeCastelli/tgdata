@@ -21,7 +21,7 @@ EXPECTED = {
 
 def synthetic(name, T=100, N=5):
     rng = np.random.default_rng(0)
-    data = rng.uniform(1, 100, size=(T, N, 1 + len(pems.SPECS[name].covariates)))
+    data = rng.uniform(1, 100, size=(T, N, 1 + len(pems.SPECS[name].left_out)))
     data[3, 2, 0] = 0
     return data
 
@@ -30,14 +30,15 @@ def test_astgcn_lineage(tmp_path):
     g = pems.build("pems08", synthetic("pems08"), [(0, 1, 10.0), (1, 2, 20.0), (0, 1, 10.0)],
                    {"PEMS08.npz": "x"})
     assert g.edge_index.tolist() == [[0, 1], [1, 2]]
-    assert g.x.shape == (100, 5, 1) and g.covariates.shape == (100, 5, 2)
+    assert g.x.shape == (100, 5, 1) and g.covariates is None
+    assert g.meta["left_out_channels"]["channels"] == ["occupancy", "speed"]
     np.testing.assert_array_equal(g.edge_weight, [10.0, 20.0])
     assert tgdata.adjacency(g)[1].tolist() == [1.0, 1.0]
     assert not g.mask[3, 2] and np.asarray(g.mask).sum() == 100 * 5 - 1
     split = g.splits["default"]
     assert split.over == "samples" and not split.strict
     s = g.task()[0]
-    assert s["y"].shape == (12, 5, 1) and s["covariates"].shape == (24, 5, 2)
+    assert s["y"].shape == (12, 5, 1) and "covariates" not in s
     tgdata.save(g, tmp_path)
     tgdata.validate(tgdata.load_dir(tmp_path))
 

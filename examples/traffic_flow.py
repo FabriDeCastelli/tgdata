@@ -56,7 +56,6 @@ g = tgdata.load("pems08", root=ROOT)
 print(g.name, "|", g.domain, "|", g.meta["source"])
 print(f"x          {g.x.shape}  {g.x.dtype}   [steps, nodes, channels] = {g.meta['channels']}, "
       f"stored as {getattr(g.x, 'raw', g.x).dtype}")
-print(f"covariates {g.covariates.shape}   {g.meta['covariate_channels']}")
 stored = "recomputed from x" if isinstance(g.mask, DerivedMask) else "stored"
 print(f"mask       {g.mask.shape}      observed: {np.asarray(g.mask).mean():.2%} "
       f"({g.meta['mask_rule']}, {stored})")
