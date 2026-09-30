@@ -105,3 +105,23 @@ def test_featureless_graph_needs_num_nodes(snapshot_graph):
                                                   if k != "num_nodes"})
     with pytest.raises(ValueError, match="num_nodes"):
         tgdata.validate(g)
+
+
+def test_push_deletes_files_the_new_version_drops(static_graph, tmp_path, monkeypatch):
+    from tgdata import hub
+
+    calls = {}
+
+    class FakeApi:
+        def create_repo(self, *args, **kwargs):
+            pass
+
+        def upload_folder(self, **kwargs):
+            calls.update(kwargs)
+            return type("Info", (), {"commit_url": "url"})
+
+    monkeypatch.setattr(hub, "HfApi", FakeApi)
+    monkeypatch.setattr(hub, "add_to_domain_collection", lambda *a, **k: None)
+    tgdata.save(static_graph, tmp_path)
+    hub.push(tmp_path, "toy")
+    assert "arrays/*" in calls["delete_patterns"]

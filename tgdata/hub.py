@@ -10,6 +10,10 @@ from .io import load_dir
 from .schema import SCHEMA_VERSION, validate
 
 DEFAULT_NAMESPACE = "tgdata-hub"
+# Everything io.save writes: stale copies are deleted from the repo on every push, since
+# upload_folder only adds and overwrites.
+DATA_FILES = ["arrays/*", "y/**", "splits/**", "node_sets/*", "*.parquet", "meta.json",
+              "README.md"]
 
 
 def namespace() -> str:
@@ -51,6 +55,7 @@ def push(
         repo_type="dataset",
         folder_path=path,
         revision=revision,
+        delete_patterns=DATA_FILES,
         commit_message=commit_message or f"Upload {g.name} (schema v{SCHEMA_VERSION})",
     )
     add_to_domain_collection(api, rid, g.domain, private=private)
