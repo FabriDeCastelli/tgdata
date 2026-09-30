@@ -216,5 +216,43 @@
     "covariate_channels": [],
     "source": "Caltrans PeMS District 8, ASTGCN release (Guo et al., 2019)",
     "license": "other"
+  },
+  "twittertennis-rg17": {
+    "domain": "social",
+    "tasks": [
+      "node_regression",
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 1000,
+    "num_steps": 120,
+    "num_features": 2,
+    "freq": "1h",
+    "channels": [
+      "degree",
+      "transitivity"
+    ],
+    "covariate_channels": [],
+    "source": "Twitter mentions, B\u00e9res et al. (2018), packaged by PyTorch Geometric Temporal",
+    "license": "unspecified by the source"
+  },
+  "twittertennis-uo17": {
+    "domain": "social",
+    "tasks": [
+      "node_regression",
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 1000,
+    "num_steps": 112,
+    "num_features": 2,
+    "freq": "1h",
+    "channels": [
+      "degree",
+      "transitivity"
+    ],
+    "covariate_channels": [],
+    "source": "Twitter mentions, B\u00e9res et al. (2018), packaged by PyTorch Geometric Temporal",
+    "license": "unspecified by the source"
   }
 }

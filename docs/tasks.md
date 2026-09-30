@@ -16,6 +16,7 @@ tgdata.tasks.available(g)                                    # task types this d
 | task | a sample is | options |
 |---|---|---|
 | `node_forecasting` | the last `window` steps of every node, and the next `horizon` steps to predict | `window`, `horizon` (steps, or a duration such as `"1h"`), `split`, `normalize`, `stride`, `strict`, `target`, `device` |
+| `node_regression` | the last `window` snapshots, and a stored node target at `offset` steps after the last one (clamped to the final step, as PyG Temporal does) | `target`, `window`, `offset`, `features`, `target_transform`, `split` |
 | `graph_classification` | the last `window` snapshots, restricted to the nodes active in them, and the graph's label | `target`, `window`, `split`, `strict` |
 
 - `split` is `"train"`, `"val"` or `"test"` of the dataset's default split, or `None` for the
@@ -46,6 +47,25 @@ batch = next(iter(loader))
 | `timestamps` | `[B, window + horizon]` | epoch seconds (for PeMS, local wall time; see `g.meta["timestamps_tz"]`) |
 | `t` | `[B]` | the first target step of each sample |
 | `edge_index`, `edge_weight` | `[2, E]`, `[E]` | the graph, once per batch |
+| `edge_ptr` | `[window + 1]` | graphs that change over time only: see below |
+
+For graphs whose edges change at every snapshot, a batch carries the edges of all its windows in
+one set of tensors, built on the GPU without a Python loop. The edges of window step k of every
+sample lie between `edge_ptr[k]` and `edge_ptr[k + 1]`, and sample b's node ids are shifted by
+`b * N`, so one graph convolution per step covers the whole batch:
+
+```python
+x = batch["x"]                                            # [B, window, N, F]
+B, w, N, F = x.shape
+for k in range(w):
+    lo, hi = batch["edge_ptr"][k], batch["edge_ptr"][k + 1]
+    h = conv(x[:, k].reshape(B * N, F), batch["edge_index"][:, lo:hi],
+             batch["edge_weight"][lo:hi])                 # [B * N, hidden]
+```
+
+`benchmarks/dynamic_edges.py` compares this with slicing each sample's snapshots in a Python
+loop: the result is bit-identical, and 2.3x to 25x faster on an A100 for batches of 64 windows
+of 1 to 12 snapshots.
 
 `task[i]` returns one sample with the same keys and no batch dimension. Batches stay on the
 device they were built on: call `.cpu()` before using numpy or matplotlib (tgdata's plotting

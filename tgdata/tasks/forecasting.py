@@ -6,7 +6,7 @@ from typing import Literal
 import numpy as np
 import torch
 
-from ..device import decode, on_device, resolve_device
+from ..device import decode, on_device, resolve_device, window_edges
 from ..schema import TemporalGraph
 from ..time import to_steps
 from .base import Sample, Task, passthrough, register_task, select_anchors
@@ -55,7 +55,7 @@ class NodeForecasting(Task):
         self.anchor_steps = torch.as_tensor(self.anchors, device=self.device)
         self.offsets = torch.arange(-self.window, self.horizon, device=self.device)
         self.target = None if target is None else torch.as_tensor(
-            np.asarray(g.y[target].values), device=self.device)
+            np.array(g.y[target].values), device=self.device)
         channels = g.meta.get("target_channels")
         self.target_channels = None if channels is None else torch.as_tensor(
             channels, device=self.device)
@@ -109,8 +109,6 @@ class NodeForecasting(Task):
     def __getitem__(self, i: int) -> Sample:
         batch = self.__getitems__([i])
         sample = {k: v[0] if k in BATCHED else v for k, v in batch.items()}
-        if "edges" in sample:
-            sample.update(sample.pop("edges")[0])
         sample["t"] = int(sample["t"])
         return sample
 
@@ -118,14 +116,7 @@ class NodeForecasting(Task):
         data = self.data
         if "edge_ptr" not in data:
             return {"edge_index": data["edge_index"], "edge_weight": data["edge_weight"]}
-        ptr, w = data["edge_ptr"], self.window
-        edges = []
-        for lo, hi in zip(rows[:, 0].tolist(), rows[:, w].tolist(), strict=True):
-            a, b = int(ptr[lo]), int(ptr[hi])
-            edges.append({"edge_index": data["edge_index"][:, a:b],
-                          "edge_weight": data["edge_weight"][a:b],
-                          "edge_ptr": ptr[lo:hi + 1] - a})
-        return {"edges": edges}
+        return window_edges(data, rows[:, 0], self.window, self.g.num_nodes)
 
 
 def _scale(g: TemporalGraph, normalize: str) -> tuple[np.ndarray, np.ndarray]:

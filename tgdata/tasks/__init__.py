@@ -6,6 +6,7 @@ from ..schema import TemporalGraph
 from .base import TASKS, ConcatTasks, Task, passthrough, register_task
 from .classification import GraphClassification
 from .forecasting import NodeForecasting
+from .regression import NodeRegression
 
 
 def available(g: TemporalGraph) -> list[str]:
@@ -19,5 +20,5 @@ def make_task(g: TemporalGraph, name: str = "default", **params: Any) -> Task:
     return TASKS[name](g, **params)
 
 
-__all__ = ["TASKS", "ConcatTasks", "GraphClassification", "NodeForecasting", "Task", "available",
-           "make_task", "passthrough", "register_task"]
+__all__ = ["TASKS", "ConcatTasks", "GraphClassification", "NodeForecasting", "NodeRegression",
+           "Task", "available", "make_task", "passthrough", "register_task"]

@@ -60,6 +60,32 @@ def on_device(g: TemporalGraph, device: torch.device, adjacency_kind: str | None
     return data
 
 
+def window_edges(data: dict[str, Any], first: torch.Tensor, window: int, num_nodes: int
+                 ) -> dict[str, torch.Tensor]:
+    """Edges of `window` snapshots from each start in `first` [B], built with no Python loop.
+
+    Step-major: the edges of window step k of every sample are contiguous, between
+    `edge_ptr[k]` and `edge_ptr[k + 1]`, and sample b's node ids are shifted by b * num_nodes,
+    so one graph convolution per step covers the whole batch (x reshaped to [B * N, F]).
+    """
+    batch = len(first)
+    steps = (first[:, None] + torch.arange(window, device=first.device)).T.reshape(-1)
+    owner = torch.arange(batch, device=first.device).repeat(window)
+    lo = data["edge_ptr"][steps]
+    counts = data["edge_ptr"][steps + 1] - lo
+    total = int(counts.sum())
+    segment = torch.repeat_interleave(torch.arange(len(steps), device=first.device), counts,
+                                      output_size=total)
+    starts = (counts.cumsum(0) - counts)[segment]
+    position = lo[segment] + torch.arange(total, device=first.device) - starts
+    per_step = counts.view(window, batch).sum(1)
+    return {
+        "edge_index": data["edge_index"][:, position] + owner[segment] * num_nodes,
+        "edge_weight": data["edge_weight"][position],
+        "edge_ptr": torch.cat([per_step.new_zeros(1), per_step.cumsum(0)]),
+    }
+
+
 def decode(raw: torch.Tensor, divisor: torch.Tensor | None) -> torch.Tensor:
     values = raw.to(torch.float32)
     return values if divisor is None else values / divisor

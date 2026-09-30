@@ -44,6 +44,23 @@ subsets load like datasets, as views of the stored data:
 g = tgdata.load("largest-d5")          # or tgdata.load("largest", nodes="d5")
 ```
 
+## Social
+
+Graphs of interactions between accounts, whose edges change at every snapshot.
+
+| name | accounts | snapshots | interval | features (stored) | target | graph | split | introduced by |
+|---|---|---|---|---|---|---|---|---|
+| `twittertennis-rg17` | 1,000 | 120 | 1 hour | degree, transitivity | mentions received | mentions, weighted by count | 80/10/10 of snapshots | PyG Temporal (Rozemberczki et al., 2021), from Béres et al. (2018) |
+| `twittertennis-uo17` | 1,000 | 112 | 1 hour | degree, transitivity | mentions received | mentions, weighted by count | 80/10/10 of snapshots | PyG Temporal (Rozemberczki et al., 2021), from Béres et al. (2018) |
+
+Twitter mention graphs among the 1,000 most popular accounts of Roland-Garros 2017 and the US
+Open 2017. The default task is PyTorch Geometric Temporal's, sample for sample: snapshot t's
+16 one-hot features (`features="pygt_encoded"`) and weighted mentions predict `log(1 + y)` of
+snapshot t + 1, the last snapshot reusing the final label. Its batches are bit-identical to
+PyG Temporal's `TwitterTennisDatasetLoader`. The 70/15/15 split of Gravina and Bacciu (2023) and
+PyG Temporal's 80/20 are stored too. The release has no timestamps: which tournament hours the
+snapshots are is not recorded.
+
 ## Domains and pretraining pools
 
 Each dataset belongs to one domain, and each domain is a collection on the Hub.
@@ -54,5 +71,6 @@ no other member contains, so no reading is seen twice. `largest`, `largest-sd`, 
 | domain | pool | sensors |
 |---|---|---|
 | `traffic_flow` | `pems03`, `pems04`, `pems07`, `pems08`, `largest-d3` … `largest-d12` | 10,318 |
+| `social` | `twittertennis-rg17`, `twittertennis-uo17` | 2,000 |
 
 `tgdata.list()` reads the list from the Hub; `tgdata/registry.json` is the offline copy.
