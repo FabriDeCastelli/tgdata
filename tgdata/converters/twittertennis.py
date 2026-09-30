@@ -104,7 +104,7 @@ def build(event: str, data: dict[str, Any], provenance: dict[str, str]) -> Tempo
             },
             "source": f"Twitter mentions during {EVENTS[event]}, Béres et al. (2018), as "
                       "packaged by PyTorch Geometric Temporal (Rozemberczki et al., 2021)",
-            "license": "unspecified by the source",
+            "license": "unknown",
             "citation": CITATION,
             "provenance": provenance,
         },

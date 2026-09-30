@@ -234,7 +234,7 @@
     ],
     "covariate_channels": [],
     "source": "Twitter mentions, B\u00e9res et al. (2018), packaged by PyTorch Geometric Temporal",
-    "license": "unspecified by the source"
+    "license": "unknown"
   },
   "twittertennis-uo17": {
     "domain": "social",
@@ -253,6 +253,6 @@
     ],
     "covariate_channels": [],
     "source": "Twitter mentions, B\u00e9res et al. (2018), packaged by PyTorch Geometric Temporal",
-    "license": "unspecified by the source"
+    "license": "unknown"
   }
 }
