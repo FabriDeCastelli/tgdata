@@ -36,13 +36,15 @@ def load(
     return g if nodes is None else g.select_nodes(nodes)
 
 
-def load_domain(domain: str, root: str | Path | None = None) -> dict[str, TemporalGraph]:
+def load_domain(domain: str, root: str | Path | None = None,
+                role: str | None = None) -> dict[str, TemporalGraph]:
     """The pretraining pool of `domain`: every dataset whose nodes no other member contains.
 
     Wholes and unions of other members (LargeST's CA, SD, GBA, GLA) are left out, so no
-    reading appears twice; load them by name.
+    reading appears twice; load them by name. `role` keeps one side of a benchmark's train and
+    held-out test networks (MiNT).
     """
-    return {name: load(name, root=root) for name in list(domain=domain, pool=True)}
+    return {name: load(name, root=root) for name in list(domain=domain, pool=True, role=role)}
 
 
 __all__ = [

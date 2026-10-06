@@ -60,6 +60,15 @@ def on_device(g: TemporalGraph, device: torch.device, adjacency_kind: str | None
     return data
 
 
+def target_on_device(g: TemporalGraph, name: str, device: torch.device) -> torch.Tensor:
+    """Target `name`'s values on `device`, in their stored dtype, cached like `on_device`."""
+    cache = g.__dict__.setdefault("_device_cache", {})
+    key = (str(device), "y", name)
+    if key not in cache:
+        cache[key] = _upload(g.y[name].values, device)
+    return cache[key]
+
+
 def window_edges(data: dict[str, Any], first: torch.Tensor, window: int, num_nodes: int
                  ) -> dict[str, torch.Tensor]:
     """Edges of `window` snapshots from each start in `first` [B], built with no Python loop.

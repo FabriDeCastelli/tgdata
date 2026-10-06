@@ -12,7 +12,7 @@ from .encoding import DerivedMask
 if TYPE_CHECKING:
     from .tasks.base import Task
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 TimeMode = Literal["discrete", "continuous"]
 Bounds = dict[str, tuple[int, int]]
@@ -29,11 +29,12 @@ class Target:
     """A supervised target other than future values of `x`.
 
     Layout of `values` by level: node -> [N or K, ...] if static else [S, N or K, ...];
-    graph -> [...] if static else [S, ...]; edge -> [E, ...] aligned with `edge_index`.
+    graph -> [...] if static else [S, ...]; edge -> [E, ...] aligned with `edge_index`;
+    pair -> [N, N, ...] if static else [S, N, N, ...], one value per (origin, destination).
     S is the number of steps (all of them unless `steps` lists which), K the size of `index`.
     """
 
-    level: Literal["node", "edge", "graph"]
+    level: Literal["node", "edge", "graph", "pair"]
     kind: Literal["regression", "class"]
     values: np.ndarray
     static: bool = False
@@ -53,6 +54,9 @@ class Split:
     must lie inside its split too, as when a source cuts windows within each part.
     `rounding` is how the source turns fractions into counts: "floor" cuts at
     int(n * cumulative fraction); "round" sizes each part but the last as round(n * fraction).
+    `holdout` names a last part cut first, as int(n * fraction) whole `unit`s of steps from the
+    end, with windows cut inside it; `fractions` then split, over samples, the windows lying
+    before it.
     """
 
     fractions: dict[str, float] | None = None
@@ -61,7 +65,15 @@ class Split:
     rounding: Literal["floor", "round"] = "floor"
     boundaries: Bounds | None = None
     nodes: dict[str, np.ndarray] | None = None
+    holdout: dict[str, float] | None = None
+    unit: int = 1
     reference: str | None = None
+
+    def holdout_start(self, num_steps: int) -> int:
+        assert self.holdout is not None
+        (fraction,) = self.holdout.values()
+        units = num_steps // self.unit
+        return (units - math.floor(units * fraction + 1e-9)) * self.unit
 
     def resolve(self, length: int) -> Bounds:
         assert self.fractions is not None
@@ -257,6 +269,9 @@ def select_nodes(g: TemporalGraph, nodes: str | np.ndarray) -> TemporalGraph:
             values = tgt.values[inside] if tgt.static else tgt.values[:, inside]
             changes["y"][key] = dataclasses.replace(tgt, values=values,
                                                     index=relabel[tgt.index][inside])
+        elif tgt.level == "pair":
+            values = tgt.values[at][:, at] if tgt.static else tgt.values[:, at][:, :, at]
+            changes["y"][key] = dataclasses.replace(tgt, values=values)
         elif tgt.level == "edge" and keep is not None:
             changes["y"][key] = dataclasses.replace(tgt, values=tgt.values[keep])
     meta = {**g.meta, "num_nodes": len(ids),
@@ -290,7 +305,10 @@ def compute_stats(
     Streams over time in chunks, so it works on memory-mapped series larger than RAM.
     """
     assert g.x is not None
-    start, end = g.splits[split].resolve(g.num_steps)["train"]
+    spec = g.splits[split]
+    # With a holdout, sources fit their scaler on every step before it (train and val).
+    start, end = ((0, spec.holdout_start(g.num_steps)) if spec.holdout is not None
+                  else spec.resolve(g.num_steps)["train"])
     N, F = g.x.shape[1:]
     count, mean, m2 = np.zeros((N, F)), np.zeros((N, F)), np.zeros((N, F))
     chunk = max(1, 2**26 // (N * F))
@@ -451,6 +469,13 @@ def _split_errors(g: TemporalGraph) -> list[str]:
             fr = split.fractions
             if min(fr.values()) <= 0 or not math.isclose(sum(fr.values()), 1.0):
                 errors.append(f"{label} fractions must be positive and sum to 1, got {fr}")
+            if split.holdout is not None and (
+                len(split.holdout) != 1 or split.over != "samples"
+                or not 0 < next(iter(split.holdout.values())) < 1
+                or set(split.holdout) & set(fr)
+            ):
+                errors.append(f"{label} holdout must be one new part with a fraction in (0, 1), "
+                              "and fractions over samples")
         elif split.boundaries is not None:
             bounds = sorted((int(s), int(e), k) for k, (s, e) in split.boundaries.items())
             if any(s >= e for s, e, _ in bounds) or any(
@@ -487,6 +512,11 @@ def _target_errors(g: TemporalGraph) -> list[str]:
                 tgt.steps.min() < 0 or tgt.steps.max() >= g.num_steps
             ):
                 errors.append(f"{label} steps outside [0, {g.num_steps})")
+        if tgt.level == "pair":
+            axis = 0 if tgt.static else 1
+            n = g.num_nodes
+            if v.shape[axis:axis + 2] != (n, n):
+                errors.append(f"{label} pair axes are {v.shape[axis:axis + 2]}, expected {(n, n)}")
         if tgt.level == "node":
             axis = 0 if tgt.static else 1
             n = g.num_nodes if tgt.index is None else len(tgt.index)

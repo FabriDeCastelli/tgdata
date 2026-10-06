@@ -61,16 +61,81 @@ PyG Temporal's `TwitterTennisDatasetLoader`. The 70/15/15 split of Gravina and B
 PyG Temporal's 80/20 are stored too. The release has no timestamps: which tournament hours the
 snapshots are is not recorded.
 
+## Mobility and epidemic (MOBINS)
+
+The six datasets of MOBINS (Na et al., ICWSM 2025), from its Zenodo release. Each has node
+series, a spatial network (binary, symmetric, with self-loops, as released) and an
+origin-destination matrix of movements between nodes at every step, stored as the pair target
+`y["od"]` `[T, N, N]`.
+
+| name | domain | nodes | steps | dates | node channels | train / val / test windows |
+|---|---|---|---|---|---|---|
+| `mobins-seoul` | `mobility` | 128 | 17,520 hourly | 2022-01-01 – 2023-12-31 | inflow, outflow | 430 / 108 / 172 |
+| `mobins-busan` | `mobility` | 60 | 26,280 hourly | 2021-01-01 – 2023-12-31 | inflow, outflow | 649 / 163 / 263 |
+| `mobins-daegu` | `mobility` | 61 | 26,280 hourly | 2021-01-01 – 2023-12-31 | inflow, outflow | 649 / 163 / 263 |
+| `mobins-nyc` | `mobility` | 5 | 18,960 hourly | 2022-02-01 – 2024-03-31 | ridership | 466 / 117 / 187 |
+| `mobins-epi-korea` | `epidemic` | 16 | 1,320 daily | 2020-01-20 – 2023-08-31 | infections | 784 / 196 / 320 |
+| `mobins-epi-nyc` | `epidemic` | 5 | 1,401 daily | 2020-03-01 – 2023-12-31 | infections | 832 / 209 / 340 |
+
+The default task is MOBINS's: 4 days in, 7 days out, one window per day, forecasting the node
+series and the OD matrix together from both (`batch["y"]` and `batch["y_od"]`). Its batches are
+bit-identical to MOBINS's `_make_windowing_and_loader`, before its scaling, at 7, 14 and 30
+days. The split is also MOBINS's: the last 25% of days are the test set, with windows cut
+inside them, and the windows before split 80/20 into train and val. Licence CC BY-NC-ND 4.0
+(the Zenodo record's).
+
+## Transaction networks (MiNT)
+
+The 84 ERC20 token transaction networks of MiNT (Shamsi, Ngo et al., NeurIPS 2025 Datasets and
+Benchmarks), from the Zenodo release of their edge lists and Edge Growth/Shrink (Edge GS) labels
+(record 15364297). One dataset per token, named `mint-<token>` in lower case (`mint-iotx`,
+`mint-doge2.0`). Nodes are Ethereum addresses (`g.node_table["address"]`), 1,448 to 127,780 per
+network.
+
+A snapshot is a 7-day window of transfers and the next window starts one day later, so a
+transfer appears in up to 7 consecutive snapshots, as in the release. Every row of the edge list is stored
+as released: the multi-edges, the token amount as edge weight (a float32 of the release's
+float64), and zero or negative amounts and self-loops where the release has them. Snapshot t
+is `edge_index[:, edge_ptr[t]:edge_ptr[t+1]]`; each row's `date` column is recoverable from
+`meta["first_date"]` and `meta["day_counts"]`. The label `y["edge_gs"]` is the release's: one 0/1
+per snapshot, 1 when the transfers of the 7 days starting 10 days after the snapshot's own
+start outnumber its own.
+
+| role | networks | snapshots | `g.meta["role"]` |
+|---|---|---|---|
+| train | 64 | 80 to 2,160 | `train`, with `train_rank` 1 to 64 |
+| test | 20 | 100 to 2,080 | `test` |
+
+The 64 train and 20 held-out test networks are the paper's (`dataset_package_64.txt` and
+`dataset_package_test.txt` of ScalingTGNs). `train_rank` is the position in the 64-list, whose
+first 2, 4, 8, 16 and 32 networks are the paper's scaling subsets. Select by role:
+
+```python
+train = tgdata.load_domain("transaction", role="train")
+held_out = tgdata.list(domain="transaction", role="test")
+```
+
+The default task is MiNT's: classify the label of a snapshot from that snapshot
+(`graph_classification`, `target="edge_gs"`, `window=1`). The default split is MiNT's code:
+the last `floor(0.15 T)` snapshots are test, the `floor(0.15 T)` before them validation and the rest
+train (the paper's 70/15/15; the cuts differ from `0.7 T` by a snapshot for some T). The test
+networks also have a `zero-shot` split whose test part is the last 30% of snapshots, which is
+what MiNT's `test_foundation_tgc_64.py` scores them on. MiNT's own model collapses each snapshot to an unweighted undirected simple graph and adds
+four pooled degree features; neither is stored here. Licence CC BY 4.0 (the Zenodo record's).
+
 ## Domains and pretraining pools
 
 Each dataset belongs to one domain, and each domain is a collection on the Hub.
 `tgdata.load_domain(domain)` returns the domain's pretraining pool: the datasets whose readings
-no other member contains, so no reading is seen twice. `largest`, `largest-sd`, `-gba` and
+no other member contains, so no reading is seen twice. `role="train"` or `"test"` keeps one side of a benchmark's networks. `largest`, `largest-sd`, `-gba` and
 `-gla` contain districts and stay out of the pool; they load by name.
 
 | domain | pool | sensors |
 |---|---|---|
 | `traffic_flow` | `pems03`, `pems04`, `pems07`, `pems08`, `largest-d3` … `largest-d12` | 10,318 |
 | `social` | `twittertennis-rg17`, `twittertennis-uo17` | 2,000 |
+| `mobility` | `mobins-seoul`, `mobins-busan`, `mobins-daegu`, `mobins-nyc` | 254 |
+| `epidemic` | `mobins-epi-korea`, `mobins-epi-nyc` | 21 |
+| `transaction` | the 84 `mint-*` networks (64 `train`, 20 `test`) | 3,268,430 addresses |
 
 `tgdata.list()` reads the list from the Hub; `tgdata/registry.json` is the offline copy.

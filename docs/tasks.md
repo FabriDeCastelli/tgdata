@@ -15,7 +15,7 @@ tgdata.tasks.available(g)                                    # task types this d
 
 | task | a sample is | options |
 |---|---|---|
-| `node_forecasting` | the last `window` steps of every node, and the next `horizon` steps to predict | `window`, `horizon` (steps, or a duration such as `"1h"`), `split`, `normalize`, `stride`, `strict`, `target`, `device` |
+| `node_forecasting` | the last `window` steps of every node, and the next `horizon` steps to predict | `window`, `horizon`, `stride` (steps, or a duration such as `"1h"`), `split`, `normalize`, `strict`, `target`, `pair_target`, `device` |
 | `node_regression` | the last `window` snapshots, and a stored node target at `offset` steps after the last one (clamped to the final step, as PyG Temporal does) | `target`, `window`, `offset`, `features`, `target_transform`, `split` |
 | `graph_classification` | the last `window` snapshots, restricted to the nodes active in them, and the graph's label | `target`, `window`, `split`, `strict` |
 
@@ -46,6 +46,7 @@ batch = next(iter(loader))
 | `covariates` | `[B, window + horizon, N, C]` | other measured channels, if any |
 | `timestamps` | `[B, window + horizon]` | epoch seconds (for PeMS, local wall time; see `g.meta["timestamps_tz"]`) |
 | `t` | `[B]` | the first target step of each sample |
+| `x_<name>`, `y_<name>` | `[B, window, N, N]`, `[B, horizon, N, N]` | with `pair_target=name`: that node-pair target over the window and the horizon, float32 (MOBINS: `x_od`, `y_od`) |
 | `edge_index`, `edge_weight` | `[2, E]`, `[E]` | the graph, once per batch |
 | `edge_ptr` | `[window + 1]` | graphs that change over time only: see below |
 

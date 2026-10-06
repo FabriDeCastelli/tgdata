@@ -5,7 +5,7 @@ from collections.abc import Callable, Sequence
 import numpy as np
 import torch
 
-from ..device import on_device, resolve_device, window_edges
+from ..device import on_device, resolve_device, target_on_device, window_edges
 from ..schema import TemporalGraph
 from ..transforms import FEATURES, TARGETS
 from .base import Sample, Task, passthrough, register_task, select_anchors
@@ -56,7 +56,7 @@ class NodeRegression(Task):
         self.anchor_steps = torch.as_tensor(self.anchors, device=self.device)
         self.target_steps = torch.as_tensor(np.minimum(self.anchors + offset, last_step),
                                             device=self.device)
-        self.target = torch.as_tensor(np.array(tgt.values), device=self.device)
+        self.target = target_on_device(g, target, self.device)
         self.features = None if features is None else FEATURES[features]
         self.target_transform = None if target_transform is None else TARGETS[target_transform]
         self.offsets = torch.arange(-window + 1, 1, device=self.device)

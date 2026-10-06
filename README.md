@@ -9,11 +9,11 @@
 In a uv project (nothing is cloned into it; `uv.lock` pins the version):
 
 ```bash
-uv add "tgdata[plot] @ git+ssh://git@github.com/FabriDeCastelli/tgdata.git" --tag v0.3.0
+uv add "tgdata[plot] @ git+ssh://git@github.com/FabriDeCastelli/tgdata.git" --tag v0.4.0
 hf auth login   # the datasets are private to the tgdata-hub organisation
 ```
 
-With pip: `pip install "tgdata[plot] @ git+ssh://git@github.com/FabriDeCastelli/tgdata.git@v0.3.0"`.
+With pip: `pip install "tgdata[plot] @ git+ssh://git@github.com/FabriDeCastelli/tgdata.git@v0.4.0"`.
 Add `cu128` to the extras for CUDA 12.8 drivers, or `cpu` for a machine without a GPU; see
 [installing](docs/contributing.md#installing).
 

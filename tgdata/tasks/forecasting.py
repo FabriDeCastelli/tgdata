@@ -6,18 +6,22 @@ from typing import Literal
 import numpy as np
 import torch
 
-from ..device import decode, on_device, resolve_device, window_edges
+from ..device import decode, on_device, resolve_device, target_on_device, window_edges
 from ..schema import TemporalGraph
 from ..time import to_steps
 from .base import Sample, Task, passthrough, register_task, select_anchors
 
 # Keys whose first dimension is the batch; the rest (static edges) are shared by the batch.
 BATCHED = ("x", "y", "mask_x", "mask_y", "covariates", "timestamps", "t")
+PAIR_KEYS = ("x_{}", "y_{}")
 
 
 @register_task
 class NodeForecasting(Task):
     """Predict steps [t, t + horizon) of `x` (or of node target `target`) from [t - window, t).
+
+    With `pair_target` (a pair-level target such as an OD matrix), batches also hold its
+    window `x_<name>` [B, window, N, N] and its future `y_<name>` [B, horizon, N, N].
 
     Batches are cut on `device` (CUDA when available) from arrays uploaded once, by
     `__getitems__`, which torch's DataLoader calls with a whole batch of indices.
@@ -33,9 +37,10 @@ class NodeForecasting(Task):
         horizon: int | str,
         split: str | None = "train",
         splits: str = "default",
-        stride: int = 1,
+        stride: int | str = 1,
         strict: bool | None = None,
         target: str | None = None,
+        pair_target: str | None = None,
         normalize: Literal["channel", "node"] | None = None,
         transform: Callable[[Sample], Sample] | None = None,
         adjacency_kind: str | None = None,
@@ -46,6 +51,7 @@ class NodeForecasting(Task):
         self.g, self.transform = g, transform
         self.window = to_steps(window, g.meta["freq"])
         self.horizon = to_steps(horizon, g.meta["freq"])
+        stride = to_steps(stride, g.meta["freq"])
         candidates = np.arange(self.window, g.num_steps - self.horizon + 1, stride)
         self.anchors = select_anchors(g, candidates, split, splits,
                                       first=candidates - self.window,
@@ -54,8 +60,12 @@ class NodeForecasting(Task):
         self.data = on_device(g, self.device, adjacency_kind)
         self.anchor_steps = torch.as_tensor(self.anchors, device=self.device)
         self.offsets = torch.arange(-self.window, self.horizon, device=self.device)
-        self.target = None if target is None else torch.as_tensor(
-            np.array(g.y[target].values), device=self.device)
+        self.target = None if target is None else target_on_device(g, target, self.device)
+        if pair_target is not None and g.y[pair_target].level != "pair":
+            raise ValueError(f"{pair_target!r} is not a pair-level target")
+        self.pair_target = pair_target
+        self.pair = None if pair_target is None else target_on_device(g, pair_target,
+                                                                      self.device)
         channels = g.meta.get("target_channels")
         self.target_channels = None if channels is None else torch.as_tensor(
             channels, device=self.device)
@@ -85,7 +95,7 @@ class NodeForecasting(Task):
         if self.scale is not None:
             x = (x - self.scale[0]) / self.scale[1]
         if self.target is not None:
-            y = self.target[rows[:, w:]]
+            y = self.target[rows[:, w:]].to(torch.float32)
         elif self.target_channels is not None:
             y = x[:, w:, :, self.target_channels]
         else:
@@ -102,13 +112,18 @@ class NodeForecasting(Task):
             batch["covariates"] = decode(data["covariates"][rows], data.get("covariates_divisor"))
         if "timestamps" in data:
             batch["timestamps"] = data["timestamps"][rows]
+        if self.pair is not None:
+            pair = self.pair[rows].to(torch.float32)
+            x_key, y_key = (k.format(self.pair_target) for k in PAIR_KEYS)
+            batch[x_key], batch[y_key] = pair[:, :w], pair[:, w:]
         if "edge_index" in data:
             batch.update(self._edges(rows))
         return self.transform(batch) if self.transform else batch
 
     def __getitem__(self, i: int) -> Sample:
         batch = self.__getitems__([i])
-        sample = {k: v[0] if k in BATCHED else v for k, v in batch.items()}
+        batched = BATCHED + tuple(k.format(self.pair_target) for k in PAIR_KEYS)
+        sample = {k: v[0] if k in batched else v for k, v in batch.items()}
         sample["t"] = int(sample["t"])
         return sample
 

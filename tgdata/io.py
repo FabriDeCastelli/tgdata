@@ -107,7 +107,7 @@ def _load_arrays(path: Path, mmap: bool) -> dict[str, np.ndarray]:
 
 def dataset_card(g: TemporalGraph) -> str:
     tags = [f"domain:{g.domain}", f"time:{g.time_mode}", *(f"task:{t}" for t in g.tasks),
-            "tgdata"]
+            *([f"role:{g.meta['role']}"] if "role" in g.meta else []), "tgdata"]
     lines = ["---", f"pretty_name: {g.name}"]
     if "license" in g.meta:
         lines.append(f"license: {g.meta['license']}")
@@ -116,8 +116,9 @@ def dataset_card(g: TemporalGraph) -> str:
     summary = {"domain": g.domain, "tasks": ", ".join(g.tasks), "time_mode": g.time_mode,
                "num_nodes": g.num_nodes, "num_steps": g.num_steps,
                "targets": ", ".join(g.y) or "future values of x",
-               "default split": default.fractions or default.boundaries or "by node",
-               **{k: g.meta[k] for k in ("freq", "source") if k in g.meta}}
+               "default split": ({**default.fractions, **default.holdout} if default.holdout
+                                 else default.fractions or default.boundaries or "by node"),
+               **{k: g.meta[k] for k in ("role", "freq", "source") if k in g.meta}}
     lines += [f"- **{k}**: {v}" for k, v in summary.items()]
     lines += ["", "Load with `tgdata.load(\"" + g.name + "\")`.", ""]
     if "citation" in g.meta:

@@ -89,7 +89,8 @@ def select_anchors(
 
     `first`/`last` are, per anchor, the first input step and the last target step. A sample
     belongs to a split when its targets lie inside it; with `strict` (default: the split's own
-    setting) its inputs must too.
+    setting) its inputs must too. A holdout part holds the windows entirely inside it; the
+    other parts split the windows that end before it.
     """
     if split is None:
         return anchors
@@ -97,6 +98,11 @@ def select_anchors(
     strict = spec.strict if strict is None else strict
     if spec.nodes is not None:
         raise ValueError(f"split {split_name!r} splits nodes, not time")
+    if spec.holdout is not None:
+        cut = spec.holdout_start(g.num_steps)
+        if split in spec.holdout:
+            return anchors[first >= cut]
+        anchors = anchors[last < cut]
     if spec.fractions is not None and spec.over == "samples":
         start, end = spec.resolve(len(anchors))[split]
         return anchors[start:end]

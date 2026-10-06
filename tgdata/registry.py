@@ -9,7 +9,7 @@ from huggingface_hub import HfApi, hf_hub_download
 
 from .hub import namespace, repo_id
 
-TAGS = {"domain": "domain", "task": "tasks", "time": "time_mode"}
+TAGS = {"domain": "domain", "task": "tasks", "time": "time_mode", "role": "role"}
 
 
 def packaged_registry() -> dict[str, dict[str, Any]]:
@@ -39,9 +39,14 @@ def list(
     task: str | None = None,
     time_mode: str | None = None,
     pool: bool = False,
+    role: str | None = None,
     offline: bool = False,
 ) -> builtins.list[str]:
-    """Dataset names; with `pool`, only those that belong to their domain's pretraining pool."""
+    """Dataset names; with `pool`, only those that belong to their domain's pretraining pool.
+
+    `role` is "train" or "test" for datasets that come in a benchmark's train and held-out test
+    networks (MiNT); the others have none.
+    """
     registry = packaged_registry()
     return sorted(
         name
@@ -49,6 +54,7 @@ def list(
         if (domain is None or entry["domain"] == domain)
         and (task is None or task in entry["tasks"])
         and (time_mode is None or entry["time_mode"] == time_mode)
+        and (role is None or entry.get("role") == role)
         and (not pool or registry.get(name, {}).get("pool", True))
     )
 

@@ -24,8 +24,8 @@ same for every source, so code written for one dataset runs on all of them.
 | `edge_index`, `edge_weight` | `[2, E]`, `[E]` | edges and their weights, required together |
 | `edge_ptr` | `[T + 1]` | for graphs that change over time: snapshot t is `edge_index[:, edge_ptr[t]:edge_ptr[t + 1]]` |
 | `node_features`, `node_time`, `node_table` | `[N, D]`, `[N]`, columns of length N | static node data, when each node appears, per-node metadata |
-| `y` | dict of `Target` | supervised targets other than future values of `x` (a label per graph, per node, ...) |
-| `splits` | dict of `Split` | train/val/test, as the source defines it; `"default"` is the source's |
+| `y` | dict of `Target` | supervised targets other than future values of `x` (a label per graph, per node, per edge, or per node pair such as an origin-destination matrix `[T, N, N]`) |
+| `splits` | dict of `Split` | train/val/test, as the source defines it; `"default"` is the source's. Fractions cut steps or windows; a `holdout` part (for example MOBINS's last 25% of days) is cut first, and the fractions then split the windows before it |
 | `node_sets` | dict of id arrays | named node subsets, loadable as datasets |
 | `meta` | dict | everything else: units, sources, statistics, the default task |
 
@@ -42,7 +42,7 @@ node_sets/*.npy       named node subsets
 nodes.parquet         per-node metadata table
 events.parquet        continuous-time graphs only: src, dst, t, msg
 meta.json             schema version, splits, targets, encodings, metadata
-README.md             Hugging Face card, tagged domain:*, time:*, task:*
+README.md             Hugging Face card, tagged domain:*, time:*, task:*, role:* (when set)
 ```
 
 ## Compact storage

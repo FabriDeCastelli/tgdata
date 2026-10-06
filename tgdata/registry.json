@@ -149,6 +149,1455 @@
     "num_nodes": 716,
     "pool": false
   },
+  "mint-0x0": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 18636,
+    "num_steps": 260,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT 0x0 transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-adai": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 13606,
+    "num_steps": 1040,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT aDAI transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-adx": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 14514,
+    "num_steps": 1160,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT ADX transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-aioz": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 29107,
+    "num_steps": 920,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT AIOZ transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-albt": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 62952,
+    "num_steps": 1120,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT ALBT transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-ant": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 36071,
+    "num_steps": 1080,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT ANT transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-arc": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 10196,
+    "num_steps": 580,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT ARC transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-audio": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 90466,
+    "num_steps": 1080,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT AUDIO transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-ausdc": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 23656,
+    "num_steps": 1040,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT aUSDC transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-bag": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 11673,
+    "num_steps": 280,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT BAG transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-bendweth": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 1448,
+    "num_steps": 560,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT bendWETH transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-bepro": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 26396,
+    "num_steps": 1100,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT BEPRO transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-bitcoin": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 32048,
+    "num_steps": 160,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT BITCOIN transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-bob": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 42501,
+    "num_steps": 180,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT BOB transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-btrfly": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 8293,
+    "num_steps": 420,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT BTRFLY transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-cdai": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 52725,
+    "num_steps": 1420,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT cDAI transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-celr": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 64748,
+    "num_steps": 1660,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT CELR transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-cmt": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 83361,
+    "num_steps": 280,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT CMT transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-cru": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 19720,
+    "num_steps": 1120,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT CRU transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-crvusd": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 2416,
+    "num_steps": 140,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT crvUSD transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-derc": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 24104,
+    "num_steps": 800,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT DERC transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-dino": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 15471,
+    "num_steps": 340,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT DINO transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-dodo": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 46776,
+    "num_steps": 1100,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT DODO transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-doge2.0": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 7564,
+    "num_steps": 100,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT DOGE2.0 transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-dpi": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 40524,
+    "num_steps": 1120,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT DPI transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-drgn": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 113381,
+    "num_steps": 2140,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT DRGN transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-eth2x-fli": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 10972,
+    "num_steps": 940,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT ETH2x-FLI transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-evermoon": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 7428,
+    "num_steps": 140,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT EVERMOON transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-feg": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 118230,
+    "num_steps": 980,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT FEG transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-ghst": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 35055,
+    "num_steps": 1120,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT GHST transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-glm": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 53126,
+    "num_steps": 1060,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT GLM transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-hoichi": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 4996,
+    "num_steps": 400,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT HOICHI transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-hop": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 36817,
+    "num_steps": 480,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT HOP transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-inj": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 57004,
+    "num_steps": 1080,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT INJ transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-inu": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 8522,
+    "num_steps": 120,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT INU transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-iotx": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 62809,
+    "num_steps": 1960,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT IOTX transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-kp3r": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 39217,
+    "num_steps": 1080,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT KP3R transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-ladys": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 36748,
+    "num_steps": 160,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT LADYS transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-lina": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 44716,
+    "num_steps": 1120,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT LINA transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-lqty": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 33441,
+    "num_steps": 920,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT LQTY transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-lusd": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 25468,
+    "num_steps": 920,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT LUSD transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-maha": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 18031,
+    "num_steps": 720,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT MAHA transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-metis": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 52000,
+    "num_steps": 880,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT Metis transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-mim": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 22958,
+    "num_steps": 860,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT MIM transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-mir": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 79778,
+    "num_steps": 1040,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT MIR transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-mog": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 13057,
+    "num_steps": 80,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT Mog transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-mute": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 12369,
+    "num_steps": 960,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT MUTE transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-noia": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 29646,
+    "num_steps": 1100,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT NOIA transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-ohm": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 45459,
+    "num_steps": 660,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT OHM transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-orn": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 43785,
+    "num_steps": 1100,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT ORN transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-pickle": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 28469,
+    "num_steps": 1120,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT PICKLE transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-pols": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 127780,
+    "num_steps": 1100,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT POLS transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-pooh": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 26982,
+    "num_steps": 160,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT POOH transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-pre": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 40088,
+    "num_steps": 1080,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT PRE transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-psyop": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 25184,
+    "num_steps": 140,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT PSYOP transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-push": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 14355,
+    "num_steps": 900,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT PUSH transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-qom": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 21571,
+    "num_steps": 580,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT QOM transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-qsp": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 117611,
+    "num_steps": 2160,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT QSP transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-rari": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 87034,
+    "num_steps": 1180,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT RARI transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-rep": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 81786,
+    "num_steps": 320,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT REP transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-repv2": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 38762,
+    "num_steps": 1160,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT REPv2 transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-rfd": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 22919,
+    "num_steps": 140,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT RFD transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-rgt": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 35176,
+    "num_steps": 1080,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT RGT transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-rlb": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 22365,
+    "num_steps": 100,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT RLB transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-rsr": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 49994,
+    "num_steps": 640,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT RSR transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-sdex": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 8445,
+    "num_steps": 220,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT SDEX transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-shibdoge": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 39962,
+    "num_steps": 660,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT ShibDoge transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-silv2": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 12769,
+    "num_steps": 580,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT sILV2 transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-slp": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 6642,
+    "num_steps": 1120,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT SLP transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-sponge": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 25699,
+    "num_steps": 160,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT SPONGE transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-starl": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 67322,
+    "num_steps": 820,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT STARL transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-stecrv": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 18913,
+    "num_steps": 1000,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT steCRV transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-stkaave": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 37086,
+    "num_steps": 1100,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT stkAAVE transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-super": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 82997,
+    "num_steps": 960,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT SUPER transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-swap": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 69123,
+    "num_steps": 1180,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT SWAP transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-tnt": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 87756,
+    "num_steps": 1180,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT TNT transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-trac": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 71324,
+    "num_steps": 2080,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT TRAC transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-turbo": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 37963,
+    "num_steps": 160,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT TURBO transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-tvk": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 42342,
+    "num_steps": 1040,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT TVK transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-wojak": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 33592,
+    "num_steps": 180,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT WOJAK transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-wool": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 16848,
+    "num_steps": 680,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT WOOL transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-xcn": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 19812,
+    "num_steps": 580,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "test",
+    "source": "MiNT XCN transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-yf-dai": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 22439,
+    "num_steps": 1140,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT Yf-DAI transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mint-yfii": {
+    "domain": "transaction",
+    "tasks": [
+      "graph_classification"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 43335,
+    "num_steps": 1160,
+    "num_features": 0,
+    "freq": "1D",
+    "channels": [],
+    "covariate_channels": [],
+    "role": "train",
+    "source": "MiNT YFII transaction network (Shamsi, Ngo et al., 2025)",
+    "license": "cc-by-4.0"
+  },
+  "mobins-busan": {
+    "domain": "mobility",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 60,
+    "num_steps": 26280,
+    "num_features": 2,
+    "freq": "1h",
+    "channels": [
+      "inflow",
+      "outflow"
+    ],
+    "covariate_channels": [],
+    "source": "MOBINS Transportation-Busan (Na et al., 2025)",
+    "license": "cc-by-nc-nd-4.0"
+  },
+  "mobins-daegu": {
+    "domain": "mobility",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 61,
+    "num_steps": 26280,
+    "num_features": 2,
+    "freq": "1h",
+    "channels": [
+      "inflow",
+      "outflow"
+    ],
+    "covariate_channels": [],
+    "source": "MOBINS Transportation-Daegu (Na et al., 2025)",
+    "license": "cc-by-nc-nd-4.0"
+  },
+  "mobins-epi-korea": {
+    "domain": "epidemic",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 16,
+    "num_steps": 1320,
+    "num_features": 1,
+    "freq": "1D",
+    "channels": [
+      "infection"
+    ],
+    "covariate_channels": [],
+    "source": "MOBINS Epidemic-Korea (Na et al., 2025)",
+    "license": "cc-by-nc-nd-4.0"
+  },
+  "mobins-epi-nyc": {
+    "domain": "epidemic",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 5,
+    "num_steps": 1401,
+    "num_features": 1,
+    "freq": "1D",
+    "channels": [
+      "infection"
+    ],
+    "covariate_channels": [],
+    "source": "MOBINS Epidemic-NYC (Na et al., 2025)",
+    "license": "cc-by-nc-nd-4.0"
+  },
+  "mobins-nyc": {
+    "domain": "mobility",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 5,
+    "num_steps": 18960,
+    "num_features": 1,
+    "freq": "1h",
+    "channels": [
+      "ridership"
+    ],
+    "covariate_channels": [],
+    "source": "MOBINS Transportation-NYC (Na et al., 2025)",
+    "license": "cc-by-nc-nd-4.0"
+  },
+  "mobins-seoul": {
+    "domain": "mobility",
+    "tasks": [
+      "node_forecasting"
+    ],
+    "time_mode": "discrete",
+    "num_nodes": 128,
+    "num_steps": 17520,
+    "num_features": 2,
+    "freq": "1h",
+    "channels": [
+      "inflow",
+      "outflow"
+    ],
+    "covariate_channels": [],
+    "source": "MOBINS Transportation-Seoul (Na et al., 2025)",
+    "license": "cc-by-nc-nd-4.0"
+  },
   "pems03": {
     "domain": "traffic_flow",
     "tasks": [
