@@ -14,6 +14,11 @@ class MultiDatasetSampler(Sampler[list[int]]):
 
     Dataset i is picked with probability proportional to size_i ** (1 / temperature):
     1 is size-proportional, larger values flatten towards uniform.
+
+    Every pass draws new batches: the draws are seeded with `seed + epoch` and the epoch advances by
+    one per pass, because a trainer does not always call `set_epoch` (Lightning reaches the sampler
+    and the batch sampler's `sampler`, but not a batch sampler such as this one). `set_epoch` sets
+    the epoch, to replay a pass or to resume at one.
     """
 
     def __init__(
@@ -39,6 +44,7 @@ class MultiDatasetSampler(Sampler[list[int]]):
 
     def __iter__(self) -> Iterator[list[int]]:
         gen = torch.Generator().manual_seed(self.seed + self.epoch)
+        self.epoch += 1
         picks = torch.multinomial(self.probs, self.num_batches, replacement=True, generator=gen)
         for d in picks.tolist():
             local = torch.randint(int(self.sizes[d]), (self.batch_size,), generator=gen)

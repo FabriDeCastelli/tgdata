@@ -106,7 +106,9 @@ for split in ("train", "val", "test"):
 
 `ConcatTasks` joins tasks of different datasets. Every batch comes from a single dataset, chosen
 at random with probability proportional to its size^(1/temperature): `temperature=1` follows
-dataset sizes, larger values move towards picking datasets equally often.
+dataset sizes, larger values move towards picking datasets equally often. Every pass over the loader
+draws new batches, so an epoch loop needs no `set_epoch` call (`loader.batch_sampler.set_epoch(e)`
+replays epoch `e`).
 
 ```python
 pool = tgdata.ConcatTasks([tgdata.load(n).task() for n in ["pems04", "pems08"]])

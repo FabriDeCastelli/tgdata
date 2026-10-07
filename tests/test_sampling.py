@@ -14,6 +14,15 @@ def test_sampler_temperature():
     assert abs(share(1e6) - 0.5) < 0.04
 
 
+def test_sampler_draws_new_batches_every_pass():
+    sampler = MultiDatasetSampler([10, 20, 30], 4, 6, 2.0, seed=0)
+    first, second = list(sampler), list(sampler)
+    assert first != second  # no set_epoch call between the passes, as in a Lightning fit
+    sampler.set_epoch(0)
+    assert list(sampler) == first  # set_epoch replays a pass
+    assert list(sampler) == second
+
+
 def test_sampler_batches_stay_in_one_dataset():
     for batch in MultiDatasetSampler([10, 20, 30], 8, 50, 2.0):
         owners = {int(np.searchsorted([10, 30, 60], i, side="right")) for i in batch}
